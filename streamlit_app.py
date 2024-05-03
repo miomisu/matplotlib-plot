@@ -225,7 +225,7 @@ with tab1:
                 ja_legends = st.checkbox("凡例名に日本語を用いる", value = False)
             # フォント指定
             fontsize = st.number_input("フォントサイズ", step=1, value=12)
-            fp = FontProperties(fname=r"C:\Windows\Fonts\meiryo.ttc", size=fontsize)
+            fp = FontProperties(fname=r"NotoSansJP-Regular.ttf", size=fontsize)
 
         with col2:
             ylog = st.checkbox("Y軸を対数軸にする", value=False)
