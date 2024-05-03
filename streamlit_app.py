@@ -4,6 +4,11 @@ import matplotlib.pyplot as plt
 import streamlit as st
 from matplotlib.font_manager import FontProperties
 
+st.set_page_config(
+    page_title="matplotlib GUI",
+    page_icon="📈"
+)
+
 st.title("matplotlibで散布図を作成")
 
 tab1, tab2, tab3, tab4 = st.tabs(["基本のプロット", "高度な設定", "使い方", "既知のバグ"])
@@ -121,7 +126,7 @@ def plot(dpi, width, height, toptick, bottomtick, lefttick, righttick, xtickdir,
 
 # マーカーのオプション
 colors = ["black", "gray", "lightgrey", "red", "coral", "orangered", "sandybrown", "darkorange", "orange", "gold", "yellow", "lawngreen", "green", "darkgreen", "lime", "aqua", "dodgerblue", "royalblue", "darkblue", "violet", "purple", "magenta", "hotpink"]
-markers = ["o", ",", "v", "^", "D", "+", "x"]
+markers_dict = {"●": "o", "■": ",", "▼": "v", "▲": "^","◆": "D", "✚": "+", "✖": "x"}
 
 
 with tab1:
@@ -249,9 +254,9 @@ with tab1:
 
             col1, col2 = st.columns(2)
             with col1:
-                xaxis = st.selectbox("X軸とする列", columns)
+                xaxis = st.selectbox("Xとする列", columns)
             with col2:
-                yaxis = st.multiselect("Y軸とする列（複数選択可）", columns)
+                yaxis = st.multiselect("Yとする列（複数選択可）", columns)
             if xaxis in yaxis:
                 st.error("X軸とY軸で同じ列を選択しています", icon="🚨")
 
@@ -270,8 +275,8 @@ with tab1:
                         color = st.selectbox("色を選択", (colors), key = i)
                         property[i].append(color)
                     with col2:
-                        marker = st.selectbox("形を選択", (markers), key = i + 0.1, disabled = poly)
-                        property[i].append(marker)
+                        marker = st.selectbox("形を選択", (markers_dict.keys()), key = i + 0.1, disabled = poly)
+                        property[i].append(markers_dict[marker])
                     with col3:
                         size = st.number_input("大きさを入力", value = 20, min_value = 0, step = 1, key = i + 0.2)
                         property[i].append(size)
@@ -297,7 +302,7 @@ with tab1:
                 expantion = st.selectbox("保存する拡張子", (".png", ".jpg", ".svg", ".pdf"))
             st.caption("svg, pdfの場合プロットする点が多いと保存した画像が重くなるので注意")
 
-    st.write("←サイドバーを開く(サイズ変更可能)")
+    st.write("←サイドバーを開いて設定を表示(サイズ変更可能)")
     if uploaded_file:
         # プロット
         fig = plot(dpi, width, height, toptick, bottomtick, lefttick, righttick, xtickdir, ytickdir, property, legends, ja_legends, minorticks, grid, xlog, ylog, xmin, xmax, ymin, ymax, xscale, yscale, fontsize, xlabel, ylabel, fp, column, xaxis, xtick_list_num, xtick_list, ytick_list_num, ytick_list)
@@ -404,7 +409,48 @@ with tab2:
     
 
 with tab3:
-    st.subheader("使い方")
+    st.subheader("基本の使い方")
+    '''
+    1. プロットしたいデータのファイルを用意する
+        - カンマ区切り(csv)、タブ区切り(tsv)の形式のファイルを使用可能
+        - 数値データのみが含まれるようにする
+        - エクセルでプロットしたい範囲のデータをコピーし、空のテキストファイルに貼り付けて保存することでtsv形式として保存可能
+    2. ファイルを読み込む
+        - タイトル行などがある場合はその行数を入力する
+        - ファイルの種類を選択する
+        - ファイルをドラッグアンドドロップ、または「Browse files」をクリックしてファイルを選択する
+        - 「データを見る」を開くことで読み込んだデータを確認可能
+    3. オプションを選択する
+        - グラフのX軸、Y軸の範囲を選択する 入力しない場合、自動で調整される
+        - 「目盛りの詳細設定」で目盛りの表示/非表示や向き、主目盛りの位置を設定可能
+        - 軸のラベルを入力する $で囲むことでTeX記法の数式を使用可能
+        - :orange[日本語の凡例名表示は未対応]
+    4. プロットするデータを選択する
+        - X、Yとするデータの列を選択する Yとするデータの列は複数選択可能
+        - 列を選択するとそのデータの表示設定が表示されるので変更する
+        - 折れ線グラフにも変更可能 ただしデータに欠損値が存在する場合は未対応
+    5. 保存する画像の設定を変更する
+        - dpi=1インチあたりのドット数
+        - ベクター形式のpdf、svgで保存すると拡大しても粗くならないが、プロットする点が極端に多い場合保存した画像の読み込みなどが重くなる場合があるので注意
+    6. 画像を保存する
+        - 設定を変更して完成したら「画像を保存」ボタンを押して散布図の画像をダウンロードできる
+    '''
+    st.subheader("高度な設定")
+    '''
+    - 関数を表示
+        - 散布図に関数のグラフを表示可能
+        - xを変数とした関数を入力する
+        - 一般的な数式のように四則演算を入力可能 足し算:`+` 引き算:`-`  掛け算`*` 割り算:`/` 累乗:`**`
+        - 三角関数や対数関数はnumpyというライブラリの表記に従って入力する
+    - フォントの指定
+        - サーバー上での動作では未対応
+    - 目盛り線の設定
+        - 各軸の主、副目盛り線の長さ、幅を変更可能
+    '''
+    st.subheader("その他")
+    '''
+    - 右上の︙メニューのSettingsからダークモードに変更可能
+    '''
 
 with tab4:
-    st.subheader("その他")
+    st.subheader("既知のバグ")
