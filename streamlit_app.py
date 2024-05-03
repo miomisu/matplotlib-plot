@@ -222,7 +222,7 @@ with tab1:
             legends = st.checkbox("凡例表示", value=False)
             ja_legends = False
             if legends:
-                ja_legends = st.checkbox("凡例名に日本語を用いる", value = False)
+                ja_legends = st.checkbox("凡例名に日本語を用いる", value = False, disabled=True)
             # フォント指定
             fontsize = st.number_input("フォントサイズ", step=1, value=12)
             fp = FontProperties(fname=r"NotoSansJP-Regular.ttf", size=fontsize)
@@ -357,7 +357,7 @@ with tab2:
     
     a = advancetick()
 
-    setfont = st.checkbox("フォントを指定する(軸ラベルのみ)", value = False)
+    setfont = st.checkbox("フォントを指定する(軸ラベルのみ)", value = False, disabled=True)
     if setfont:
         fontpath = st.text_input("フォントファイルのパスを指定", placeholder = "例) C:\Windows\Fonts\HGRPP1.ttc")
         if fontpath:
