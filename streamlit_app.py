@@ -129,17 +129,14 @@ class plot_main:
             plt.rcParams["ytick.major.width"] = 1.0
             plt.rcParams["xtick.minor.width"] = 0.6
             plt.rcParams["ytick.minor.width"] = 0.6
-
-    # 値プロット
-    def valueprot(self):
+            
+    def valueplot(self):
         for o in self.property:
-            if o[5] == False:
-                plt.scatter(self.column[self.xaxis], self.column[o[0]], c = o[1], marker = o[2], s = o[3], label = o[4])
+            if any(np.isnan(self.column[o[0]])):
+                    st.write("第" + str(o[0]) + "列に欠損値があるため折れ線を表示できません。")
+                    plt.scatter(self.column[self.xaxis], self.column[o[0]], marker=o[1][0], s=o[2], c=o[4], label=o[5])
             else:
-                if any(np.isnan(self.column[o[0]])):
-                    st.write("第" + str(o[0]) + "列に欠損値があるため折れ線グラフを表示できません。")
-                else:
-                    plt.plot(self.column[self.xaxis], self.column[o[0]], c = o[1], linewidth = o[3], label = o[4])
+                plt.plot(self.column[self.xaxis], self.column[o[0]], o[1], markersize=o[2], linewidth=o[3], c=o[4], label=o[5])
     
     # 凡例表示
     def display_legend(self):
@@ -200,7 +197,7 @@ class plot_main:
         self.enable_ticks(self.toptick, self.bottomtick, self.lefttick, self.righttick)
         self.tick_direction(self.xtickdir, self.ytickdir)
         self.custom_ticks(self.ticksetting, self.xmajor_size, self.ymajor_size, self.xminor_size, self.yminor_size, self.xmajor_width, self.ymajor_width, self.xminor_width, self.yminor_width)
-        self.valueprot(self.property, self.column)
+        self.valueplot(self.property, self.column)
         self.display_legend(self.legends, self.ja_legends, self.fontsize)
         self.add_minorticks(self.minorticks)
         self.display_grid(self.grid)
@@ -219,7 +216,7 @@ class plot_main:
         self.enable_ticks(self.toptick, self.bottomtick, self.lefttick, self.righttick)
         self.tick_direction(self.xtickdir, self.ytickdir)
         self.custom_ticks(self.ticksetting, self.xmajor_size, self.ymajor_size, self.xminor_size, self.yminor_size, self.xmajor_width, self.ymajor_width, self.xminor_width, self.yminor_width)
-        self.valueprot(self.property, self.column)
+        self.valueplot(self.property, self.column)
         self.add_minorticks(self.minorticks)
         self.display_grid(self.grid)
         self.enable_xlog(self.xlog)
@@ -234,8 +231,11 @@ class plot_main:
 # マーカーのオプション
 colors = ["black", "gray", "lightgrey", "red", "coral", "orangered", "sandybrown", "darkorange", "orange", "gold", "yellow", "lawngreen", "green", "darkgreen", "lime", "aqua", "dodgerblue", "royalblue", "darkblue", "violet", "purple", "magenta", "hotpink"]
 markers_dict = {"●": "o", "■": ",", "▼": "v", "▲": "^","◆": "D", "✚": "+", "✖": "x"}
+linetype_dict = {"実線":"-", "破線":"--", "点線":":", "一点鎖線":"-."}
 
-a = plot_main(None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None)
+# オブジェクト作成
+param_list = [None for i in range(43)]
+a = plot_main(*param_list)
 
 with tab1:
     with st.sidebar:
@@ -303,9 +303,9 @@ with tab1:
             a.xtick_list_num = []
             if a.xscale:
                 xtick = st.text_input("目盛りを表示する位置(数値)をスペースで区切って入力", key = "xtick")
-                a.xtick_list = a.xtick.split()
+                a.xtick_list = xtick.split()
                 try:
-                    xtick_list_num = [float(i) for i in a.xtick_list]
+                    a.xtick_list_num = [float(i) for i in a.xtick_list]
                 except:
                     st.error("数値を入力してください", icon="🚨")
 
@@ -377,21 +377,27 @@ with tab1:
                 for i, ycolumn in enumerate(yaxis):
                     a.property[i].append(ycolumn)
                     st.write("第" + str(ycolumn) + "列")
-                    poly = st.checkbox("折れ線グラフにする", value = False, key = i + 0.4)
-                    col1, col2, col3, col4 = st.columns(4)
+                    plottype = st.radio("プロットの種類", ["マーカー", "折れ線", "両方"], horizontal=True, key=i + 0.5, disabled=any(np.isnan(a.column[ycolumn])))
+                    col1, col2, col3= st.columns(3)
                     with col1:
-                        color = st.selectbox("色を選択", (colors), key = i)
-                        a.property[i].append(color)
+                        marker = st.selectbox("マーカーの形", (markers_dict.keys()), key = i + 0.1)
+                        linetype = st.selectbox("線の種類", (linetype_dict.keys()), key=i + 0.6)
+                        if plottype == "マーカー":
+                            a.property[i].append(markers_dict[marker])
+                        elif plottype == "折れ線":
+                            a.property[i].append(linetype_dict[linetype])
+                        elif plottype == "両方":
+                            a.property[i].append(markers_dict[marker] + linetype_dict[linetype])
                     with col2:
-                        marker = st.selectbox("形を選択", (markers_dict.keys()), key = i + 0.1, disabled = poly)
-                        a.property[i].append(markers_dict[marker])
+                        markersize = st.number_input("マーカーの大きさ", value = 4, min_value = 0, step = 1, key = i + 0.2)
+                        a.property[i].append(markersize)
+                        linewidth = st.number_input("線の幅", value = 3, min_value = 0, step = 1, key = i + 0.7)
+                        a.property[i].append(linewidth)
                     with col3:
-                        size = st.number_input("大きさを入力", value = 20, min_value = 0, step = 1, key = i + 0.2)
-                        a.property[i].append(size)
-                    with col4:
-                        legend = st.text_input("凡例名を入力", key = i + 0.3)
+                        color = st.selectbox("色", (colors), key = i)
+                        a.property[i].append(color)
+                        legend = st.text_input("凡例名", key = i + 0.3)
                         a.property[i].append(legend)
-                    a.property[i].append(poly)
                 #st.write(property)
             st.write("グラフのサイズ")
             col1, col2, col3= st.columns(3)
@@ -401,7 +407,7 @@ with tab1:
                 a.width = st.number_input("幅(インチ)", value = 8, step = 1, min_value = 1)
             with col3:
                 a.height = st.number_input("高さ(インチ)", value = 6, step = 1, min_value = 1)
-            st.write("サイズ(余白削除前)      " + str(a.width * a.dpi) + "×" + str(a.height * a.dpi))
+            st.write("サイズ(余白削除前)  :    " + str(a.width * a.dpi) + "×" + str(a.height * a.dpi))
 
             col1, col2 = st.columns(2)
             with col1:
@@ -418,7 +424,7 @@ with tab1:
         a.enable_ticks()
         a.tick_direction()
         a.custom_ticks()
-        a.valueprot()
+        a.valueplot()
         a.display_legend()
         a.add_minorticks()
         a.display_grid()
@@ -454,13 +460,21 @@ with tab2:
         col1, col2, col3 = st.columns(3)
         with col1:
             f_min = st.number_input("最小値", value=0.0, step=0.01)
-            f_color = st.selectbox("色を選択", (colors))
         with col2:
             f_max = st.number_input("最大値", value=10.0, step=0.01)
-            f_size = st.number_input("太さを入力", value = 3.0, min_value = 0.0, step = 0.5)
         with col3:
-            slice = st.number_input("分割数を入力(滑らかさ)", value = 100, min_value = 0, step = 1)
-            f_legend = st.text_input("凡例名を入力")
+            slice = st.number_input("分割数(滑らかさ)", value = 100, min_value = 0, step = 1)
+
+        st.write("オプション")
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            f_linetype = st.selectbox("線の種類", (linetype_dict.keys()))
+        with col2:
+            f_color = st.selectbox("色", (colors))
+        with col3:
+            f_size = st.number_input("線の幅", value = 3.0, min_value = 0.0, step = 0.5)
+        with col4:
+            f_legend = st.text_input("凡例名")
         
         if f_max <= f_min:
             st.error("最小値が最大値よりも大きくなっています", icon="🚨")
@@ -509,9 +523,9 @@ with tab2:
             a.enable_ticks()
             a.tick_direction()
             a.custom_ticks()
-            a.valueprot()
+            a.valueplot()
             if function and f and f_max > f_min:
-                plt.plot(x, y, c = f_color, linewidth = f_size, label = f_legend)
+                plt.plot(x, y, linetype_dict[f_linetype], c = f_color, linewidth = f_size, label = f_legend)
             a.display_legend()
             a.add_minorticks()
             a.display_grid()
@@ -558,12 +572,12 @@ with tab3:
     4. プロットするデータを選択する
         - X、Yとするデータの列を選択する Yとするデータの列は複数選択可能
         - 列を選択するとそのデータの表示設定が表示されるので変更する
-        - 折れ線グラフにも変更可能 ただしデータに欠損値が存在する場合は未対応
+        - 折れ線グラフも追加可能 ただしデータに欠損値が存在する場合は未対応
     5. 保存する画像の設定を変更する
         - dpi=1インチあたりのドット数
-        - ベクター形式のpdf、svgで保存すると拡大しても粗くならないが、プロットする点が極端に多い場合保存した画像の読み込みなどが重くなる場合があるので注意
+        - ベクター形式のpdf、svgで保存すると拡大しても粗くならないが、プロットする点が極端に多い場合保存した画像の読み込みなどが重くなることがあるので注意
     6. 画像を保存する
-        - 設定を変更して完成したら「画像を保存」ボタンを押して散布図の画像をダウンロードできる
+        - 設定を変更して完成したら「画像を保存」ボタンを押して画像をダウンロードできる
     '''
     st.subheader("高度な設定")
     '''
@@ -580,6 +594,10 @@ with tab3:
     st.subheader("その他")
     '''
     - 右上の︙メニューのSettingsからダークモードに変更可能
+    - 表示がおかしくなったりした場合は右上の︙メニューの「Rerun」をクリックすると直るかもしれません
+
+    このソフトは表示フォントに「Noto Sans JP」(https://fonts.google.com/noto/specimen/Noto+Sans+JP) を使用しています。  
+    Licensed under SIL Open Font License 1.1 (http://scripts.sil.org/OFL)
     '''
 
 with tab4:
