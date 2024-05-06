@@ -351,11 +351,14 @@ with tab1:
             # st.write(uploaded_file.name)
             columns = []
             # 行列入れ替え
-            a.column = [[] for i in range(len(data_set[0]))]
-            for i in range(len(data_set[0])):
-                columns.append(i)
-                for j in range(len(data_set)):
-                    a.column[i].append(data_set[j][i])
+            try:
+                a.column = [[] for i in range(len(data_set[0]))]
+                for i in range(len(data_set[0])):
+                    columns.append(i)
+                    for j in range(len(data_set)):
+                        a.column[i].append(data_set[j][i])
+            except:
+                st.error("正しいファイルを選択できているか確認してください", icon="🚨")
 
             # st.write(data_set[0])
             # st.write(type(data_set))
