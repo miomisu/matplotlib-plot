@@ -299,26 +299,20 @@ with tab1:
                 a.ytickdir = st.radio("Y軸の目盛りの向き", ["内側", "外側", "両方"], horizontal=True, index=0)
 
             a.xscale = st.checkbox("X軸の目盛りの位置を設定", value = False)
-            a.xtick_list = []
-            a.xtick_list_num = []
-            if a.xscale:
-                xtick = st.text_input("目盛りを表示する位置(数値)をスペースで区切って入力", key = "xtick")
-                a.xtick_list = xtick.split()
-                try:
-                    a.xtick_list_num = [float(i) for i in a.xtick_list]
-                except:
-                    st.error("数値を入力してください", icon="🚨")
+            xtick = st.text_input("目盛りを表示する位置(数値)をスペースで区切って入力", key = "xtick")
+            a.xtick_list = xtick.split()
+            try:
+                a.xtick_list_num = [float(i) for i in a.xtick_list]
+            except:
+                st.error("数値を入力してください", icon="🚨")
 
             a.yscale = st.checkbox("Y軸の目盛りの位置を設定", value = False)
-            a.ytick_list = []
-            a.ytick_list_num = []
-            if a.yscale:
-                ytick = st.text_input("目盛りを表示する位置(数値)をスペースで区切って入力", key = "ytick")
-                a.ytick_list = ytick.split()
-                try:
-                    a.ytick_list_num = [float(i) for i in a.ytick_list]
-                except:
-                    st.error("数値を入力してください", icon="🚨")
+            ytick = st.text_input("目盛りを表示する位置(数値)をスペースで区切って入力", key = "ytick")
+            a.ytick_list = ytick.split()
+            try:
+                a.ytick_list_num = [float(i) for i in a.ytick_list]
+            except:
+                st.error("数値を入力してください", icon="🚨")
 
             a.minorticks = st.checkbox("副目盛り", value="True")
 
