@@ -11,7 +11,7 @@ st.set_page_config(
 
 st.title("matplotlibで散布図を作成")
 
-tab1, tab2, tab3, tab4 = st.tabs(["基本のプロット", "高度な設定", "使い方", "既知のバグ"])
+tab1, tab2, tab3, tab4 = st.tabs(["基本のプロット", "高度な設定", "使い方", "既知の不具合"])
 
 # ファイル読み込み用関数
 @st.cache_data
@@ -34,100 +34,208 @@ def get_data2(file) -> np.ndarray:
     )
     return data_set
 
-# プロット用関数
-def plot(dpi, width, height, toptick, bottomtick, lefttick, righttick, xtickdir, ytickdir, property, legends, ja_legends, minorticks, grid, xlog, ylog, xmin, xmax, ymin, ymax, xscale, yscale, fontsize, xlabel, ylabel, fp, column, xaxis, xtick_list_num, xtick_list, ytick_list_num, ytick_list, ticksetting = False, xmajor_size = 4.0, ymajor_size = 4.0, xminor_size = 2.0, yminor_size = 2.0, xmajor_width = 1.0, ymajor_width = 1.0, xminor_width = 0.6, yminor_width = 0.6) -> matplotlib.figure.Figure:
-    # プロット
-    fig = plt.figure(dpi=dpi, figsize=(width, height))
-
+# クラス作成
+class plot_main:
+    def __init__(self, dpi, width, height, toptick, bottomtick, lefttick, righttick, xtickdir, ytickdir, property, legends, ja_legends, minorticks, grid, xlog, ylog, xmin, xmax, ymin, ymax, xscale, yscale, fontsize, xlabel, ylabel, fp, column, xaxis, xtick_list_num, xtick_list, ytick_list_num, ytick_list, ticksetting, xmajor_size, ymajor_size, xminor_size, yminor_size, xmajor_width, ymajor_width, xminor_width, yminor_width, title, expantion):
+        self.dpi = dpi
+        self.width = width
+        self.height = height
+        self.toptick = toptick
+        self.bottomtick = bottomtick
+        self.lefttick = lefttick
+        self.righttick = righttick
+        self.xtickdir = xtickdir
+        self.ytickdir = ytickdir
+        self.property = property
+        self.legends = legends
+        self.ja_legends = ja_legends
+        self.minorticks = minorticks
+        self.grid = grid
+        self.xlog = xlog
+        self.ylog = ylog
+        self.xmin = xmin
+        self.xmax = xmax
+        self.ymin = ymin
+        self.ymax = ymax
+        self.xscale = xscale
+        self.yscale = yscale
+        self.fontsize = fontsize
+        self.xlabel = xlabel
+        self.ylabel = ylabel
+        self.fp = fp
+        self.column = column
+        self.xaxis = xaxis
+        self.xtick_list_num = xtick_list_num
+        self.xtick_list = xtick_list
+        self.ytick_list_num = ytick_list_num
+        self.ytick_list = ytick_list
+        self.ticksetting = ticksetting
+        self.xmajor_size = xmajor_size
+        self.ymajor_size = ymajor_size
+        self.xminor_size = xminor_size
+        self.yminor_size = yminor_size
+        self.xmajor_width = xmajor_width
+        self.ymajor_width = ymajor_width
+        self.xminor_width = xminor_width
+        self.yminor_width = yminor_width
+        self.title = title
+        self.expantion = expantion
+    
+    # figure作成
+    def makefig(self):
+        fig = plt.figure(dpi=self.dpi, figsize=(self.width, self.height))
+        return fig
+    
     # 目盛り有無
-    plt.rcParams["xtick.top"] = toptick
-    plt.rcParams["xtick.bottom"] = bottomtick
-    plt.rcParams["ytick.left"] = lefttick
-    plt.rcParams["ytick.right"] = righttick
-
+    def enable_ticks(self):
+        plt.rcParams["xtick.top"] = self.toptick
+        plt.rcParams["xtick.bottom"] = self.bottomtick
+        plt.rcParams["ytick.left"] = self.lefttick
+        plt.rcParams["ytick.right"] = self.righttick
+    
     # 目盛り向き
-    if xtickdir == "内側":
-        plt.rcParams["xtick.direction"] = "in"
-    elif xtickdir == "外側":
-        plt.rcParams["xtick.direction"] = "out"
-    else:
-        plt.rcParams["xtick.direction"] = "inout"
+    def tick_direction(self):
+        if self.xtickdir == "内側":
+            plt.rcParams["xtick.direction"] = "in"
+        elif self.xtickdir == "外側":
+            plt.rcParams["xtick.direction"] = "out"
+        else:
+            plt.rcParams["xtick.direction"] = "inout"
 
-    if ytickdir == "内側":
-        plt.rcParams["ytick.direction"] = "in"
-    elif ytickdir == "外側":
-        plt.rcParams["ytick.direction"] = "out"
-    else:
-        plt.rcParams["ytick.direction"] = "inout"
-
+        if self.ytickdir == "内側":
+            plt.rcParams["ytick.direction"] = "in"
+        elif self.ytickdir == "外側":
+            plt.rcParams["ytick.direction"] = "out"
+        else:
+            plt.rcParams["ytick.direction"] = "inout"
+    
     # 目盛り線
-    # st.write(ticksetting)
-    # st.write(xmajor_size)
-    if ticksetting:
-        plt.rcParams["xtick.major.size"] = xmajor_size
-        plt.rcParams["ytick.major.size"] = ymajor_size
-        plt.rcParams["xtick.minor.size"] = xminor_size
-        plt.rcParams["ytick.minor.size"] = yminor_size
-        plt.rcParams["xtick.major.width"] = xmajor_width
-        plt.rcParams["ytick.major.width"] = ymajor_width
-        plt.rcParams["xtick.minor.width"] = xminor_width
-        plt.rcParams["ytick.minor.width"] = yminor_width
+    def custom_ticks(self):
+        if self.ticksetting:
+            plt.rcParams["xtick.major.size"] = self.xmajor_size
+            plt.rcParams["ytick.major.size"] = self.ymajor_size
+            plt.rcParams["xtick.minor.size"] = self.xminor_size
+            plt.rcParams["ytick.minor.size"] = self.yminor_size
+            plt.rcParams["xtick.major.width"] = self.xmajor_width
+            plt.rcParams["ytick.major.width"] = self.ymajor_width
+            plt.rcParams["xtick.minor.width"] = self.xminor_width
+            plt.rcParams["ytick.minor.width"] = self.yminor_width
+        else:
+            plt.rcParams["xtick.major.size"] = 4.0
+            plt.rcParams["ytick.major.size"] = 4.0
+            plt.rcParams["xtick.minor.size"] = 2.0
+            plt.rcParams["ytick.minor.size"] = 2.0
+            plt.rcParams["xtick.major.width"] = 1.0
+            plt.rcParams["ytick.major.width"] = 1.0
+            plt.rcParams["xtick.minor.width"] = 0.6
+            plt.rcParams["ytick.minor.width"] = 0.6
 
     # 値プロット
-    for o in property:
-        if o[5] == False:
-            plt.scatter(column[xaxis], column[o[0]], c = o[1], marker = o[2], s = o[3], label = o[4])
-        else:
-            if any(np.isnan(column[o[0]])):
-                st.write("第" + str(o[0]) + "列に欠損値があるため折れ線グラフを表示できません。")
+    def valueprot(self):
+        for o in self.property:
+            if o[5] == False:
+                plt.scatter(self.column[self.xaxis], self.column[o[0]], c = o[1], marker = o[2], s = o[3], label = o[4])
             else:
-                plt.plot(column[xaxis], column[o[0]], c = o[1], linewidth = o[3], label = o[4])
+                if any(np.isnan(self.column[o[0]])):
+                    st.write("第" + str(o[0]) + "列に欠損値があるため折れ線グラフを表示できません。")
+                else:
+                    plt.plot(self.column[self.xaxis], self.column[o[0]], c = o[1], linewidth = o[3], label = o[4])
+    
     # 凡例表示
-    if legends == True and ja_legends == False:
-        plt.legend(fontsize = fontsize)
-    if legends == True and ja_legends == True:
-        plt.legend(fontsize = fontsize, prop={"family":"Meiryo"})
+    def display_legend(self):
+        if self.legends == True and self.ja_legends == False:
+            plt.legend(fontsize = self.fontsize)
+        if self.legends == True and self.ja_legends == True:
+            plt.legend(fontsize = self.fontsize, prop={"family":"Meiryo"})
     
     # 副目盛り追加
-    if minorticks:
-        plt.minorticks_on()
+    def add_minorticks(self):
+        if self.minorticks:
+            plt.minorticks_on()
     
     # グリッド表示
-    if grid:
-        plt.grid()
+    def display_grid(self):
+        if self.grid:
+            plt.grid()
+
     # x軸対数指定
-    if xlog:
-        plt.xscale("log")
+    def enable_xlog(self):
+        if self.xlog:
+            plt.xscale("log")
     # y軸対数指定
-    if ylog:
-        plt.yscale("log")
+    def enable_ylog(self):
+        if self.ylog:
+            plt.yscale("log")
     
     # x軸範囲
-    if xmin != None and xmax != None:
-        plt.xlim(xmin, xmax)
+    def xrange(self):
+        if self.xmin != None and self.xmax != None:
+            plt.xlim(self.xmin, self.xmax)
     # y軸範囲
-    if ymin != None and ymax != None:
-        plt.ylim(ymin, ymax)
+    def yrange(self):
+        if self.ymin != None and self.ymax != None:
+            plt.ylim(self.ymin, self.ymax)
+    
     # 軸目盛り
-    if xscale:
-        plt.xticks(xtick_list_num, xtick_list, fontsize = fontsize)
-    else:
-        plt.xticks(fontsize = fontsize)
-    if yscale:
-        plt.yticks(ytick_list_num, ytick_list, fontsize = fontsize)
-    else:
-        plt.yticks(fontsize = fontsize)
+    def set_ticks(self):
+        if self.xscale:
+            plt.xticks(self.xtick_list_num, self.xtick_list, fontsize = self.fontsize)
+        else:
+            plt.xticks(fontsize = self.fontsize)
+        if self.yscale:
+            plt.yticks(self.ytick_list_num, self.ytick_list, fontsize = self.fontsize)
+        else:
+            plt.yticks(fontsize = self.fontsize)
+    
     # X軸ラベル
-    plt.xlabel(xlabel, fontproperties = fp)
+    def add_xlabel(self):
+        plt.xlabel(self.xlabel, fontproperties = self.fp)
     # Y軸ラベル
-    plt.ylabel(ylabel, fontproperties=fp)
+    def add_ylabel(self):
+        plt.ylabel(self.ylabel, fontproperties=self.fp)
 
-    return fig
+    # プロット(完全)
+    def plot_fig(self) -> matplotlib.figure.Figure:
+        fig = self.makefig(self.dpi, self.width, self.height)
+        self.enable_ticks(self.toptick, self.bottomtick, self.lefttick, self.righttick)
+        self.tick_direction(self.xtickdir, self.ytickdir)
+        self.custom_ticks(self.ticksetting, self.xmajor_size, self.ymajor_size, self.xminor_size, self.yminor_size, self.xmajor_width, self.ymajor_width, self.xminor_width, self.yminor_width)
+        self.valueprot(self.property, self.column)
+        self.display_legend(self.legends, self.ja_legends, self.fontsize)
+        self.add_minorticks(self.minorticks)
+        self.display_grid(self.grid)
+        self.enable_xlog(self.xlog)
+        self.enable_ylog(self.ylog)
+        self.xrange(self.xmin, self.xmax)
+        self.yrange(self.ymin, self.ymax)
+        self.set_ticks(self.xscale, self.xtick_list_num, self.xtick_list, self.yscale, self.ytick_list_num, self.ytick_list, self.fontsize)
+        self.add_xlabel(self.xlabel, self.fp)
+        self.add_ylabel(self.ylabel, self.fp)
+        return fig
+    
+    # プロット(凡例なし)
+    def plot_fig_nolegend(self) -> matplotlib.figure.Figure:
+        fig = self.makefig(self.dpi, self.width, self.height)
+        self.enable_ticks(self.toptick, self.bottomtick, self.lefttick, self.righttick)
+        self.tick_direction(self.xtickdir, self.ytickdir)
+        self.custom_ticks(self.ticksetting, self.xmajor_size, self.ymajor_size, self.xminor_size, self.yminor_size, self.xmajor_width, self.ymajor_width, self.xminor_width, self.yminor_width)
+        self.valueprot(self.property, self.column)
+        self.add_minorticks(self.minorticks)
+        self.display_grid(self.grid)
+        self.enable_xlog(self.xlog)
+        self.enable_ylog(self.ylog)
+        self.xrange(self.xmin, self.xmax)
+        self.yrange(self.ymin, self.ymax)
+        self.set_ticks(self.xscale, self.xtick_list_num, self.xtick_list, self.yscale, self.ytick_list_num, self.ytick_list, self.fontsize)
+        self.add_xlabel(self.xlabel, self.fp)
+        self.add_ylabel(self.ylabel, self.fp)
+        return fig
 
 # マーカーのオプション
 colors = ["black", "gray", "lightgrey", "red", "coral", "orangered", "sandybrown", "darkorange", "orange", "gold", "yellow", "lawngreen", "green", "darkgreen", "lime", "aqua", "dodgerblue", "royalblue", "darkblue", "violet", "purple", "magenta", "hotpink"]
 markers_dict = {"●": "o", "■": ",", "▼": "v", "▲": "^","◆": "D", "✚": "+", "✖": "x"}
 
+a = plot_main(None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None)
 
 with tab1:
     with st.sidebar:
@@ -152,89 +260,89 @@ with tab1:
         st.subheader("グラフのオプション")
         col1, col2 = st.columns(2)
         with col1:
-            xmin = st.number_input("X軸の最小値", value=None, step=0.1)
+            a.xmin = st.number_input("X軸の最小値", value=None, step=0.1)
         with col2:
-            xmax = st.number_input("X軸の最大値", value=None, step=0.1)
+            a.xmax = st.number_input("X軸の最大値", value=None, step=0.1)
         st.caption("両方とも入力していない場合自動で調整されます")
-        if xmin != None:
-            if xmax != None:
-                if xmin > xmax:
+        if a.xmin != None:
+            if a.xmax != None:
+                if a.xmin > a.xmax:
                     st.error("最小値が最大値より大きくなっています", icon="🚨")
 
         col1, col2 = st.columns(2)
         with col1:
-            ymin = st.number_input("Y軸の最小値", value=None, step=0.01)
+            a.ymin = st.number_input("Y軸の最小値", value=None, step=0.01)
 
         with col2:
-            ymax = st.number_input("Y軸の最大値", value=None, step=0.01)
+            a.ymax = st.number_input("Y軸の最大値", value=None, step=0.01)
         st.caption("両方とも入力していない場合自動で調整されます")
-        if ymin != None:
-            if ymax != None:
-                if ymin > ymax:
+        if a.ymin != None:
+            if a.ymax != None:
+                if a.ymin > a.ymax:
                     st.error("最小値が最大値より大きくなっています", icon="🚨")
 
         with st.expander("目盛りの詳細設定"):
             col1, col2, col3, col4 = st.columns(4)
             with col1:
-                toptick = st.checkbox("上側目盛り", value=False)
+                a.toptick = st.checkbox("上側目盛り", value=False)
             with col2:
-                bottomtick = st.checkbox("下側目盛り", value=True)
+                a.bottomtick = st.checkbox("下側目盛り", value=True)
             with col3:
-                lefttick = st.checkbox("左側目盛り", value=True)
+                a.lefttick = st.checkbox("左側目盛り", value=True)
             with col4:
-                righttick = st.checkbox("右側目盛り", value=False)
+                a.righttick = st.checkbox("右側目盛り", value=False)
 
             col1, col2 = st.columns(2)
             with col1:
-                xtickdir = st.radio("X軸の目盛りの向き", ["内側", "外側", "両方"], horizontal=True, index=0)
+                a.xtickdir = st.radio("X軸の目盛りの向き", ["内側", "外側", "両方"], horizontal=True, index=0)
             with col2:
-                ytickdir = st.radio("Y軸の目盛りの向き", ["内側", "外側", "両方"], horizontal=True, index=0)
+                a.ytickdir = st.radio("Y軸の目盛りの向き", ["内側", "外側", "両方"], horizontal=True, index=0)
 
-            xscale = st.checkbox("X軸の目盛りの位置を設定", value = False)
-            xtick_list = []
-            xtick_list_num = []
-            if xscale:
+            a.xscale = st.checkbox("X軸の目盛りの位置を設定", value = False)
+            a.xtick_list = []
+            a.xtick_list_num = []
+            if a.xscale:
                 xtick = st.text_input("目盛りを表示する位置(数値)をスペースで区切って入力", key = "xtick")
-                xtick_list = xtick.split()
+                a.xtick_list = a.xtick.split()
                 try:
-                    xtick_list_num = [float(i) for i in xtick_list]
+                    xtick_list_num = [float(i) for i in a.xtick_list]
                 except:
                     st.error("数値を入力してください", icon="🚨")
 
-            yscale = st.checkbox("Y軸の目盛りの位置を設定", value = False)
-            ytick_list = []
-            ytick_list_num = []
-            if yscale:
+            a.yscale = st.checkbox("Y軸の目盛りの位置を設定", value = False)
+            a.ytick_list = []
+            a.ytick_list_num = []
+            if a.yscale:
                 ytick = st.text_input("目盛りを表示する位置(数値)をスペースで区切って入力", key = "ytick")
-                ytick_list = ytick.split()
+                a.ytick_list = ytick.split()
                 try:
-                    ytick_list_num = [float(i) for i in ytick_list]
+                    a.ytick_list_num = [float(i) for i in a.ytick_list]
                 except:
                     st.error("数値を入力してください", icon="🚨")
 
-            minorticks = st.checkbox("副目盛り", value="True")
+            a.minorticks = st.checkbox("副目盛り", value="True")
 
         col1, col2 = st.columns(2)
         with col1:
-            xlabel = st.text_input("X軸のラベル", "X")
+            a.xlabel = st.text_input("X軸のラベル", "X")
         with col2:
-            ylabel = st.text_input("Y軸のラベル", "Y")
+            a.ylabel = st.text_input("Y軸のラベル", "Y")
         st.caption("$で囲むことでTeX記法の数式を使用可能")
 
         col1, col2 = st.columns(2)
         with col1:
-            xlog = st.checkbox("X軸を対数軸にする", value=False)
-            legends = st.checkbox("凡例表示", value=False)
-            ja_legends = False
-            if legends:
-                ja_legends = st.checkbox("凡例名に日本語を用いる", value = False, disabled=True)
+            a.xlog = st.checkbox("X軸を対数軸にする", value=False)
+            a.legends = st.checkbox("凡例表示", value=False)
+            a.ja_legends = False
+            if a.legends:
+                a.ja_legends = st.checkbox("凡例名に日本語を用いる", value = False, disabled=True)
             # フォント指定
-            fontsize = st.number_input("フォントサイズ", step=1, value=12)
-            fp = FontProperties(fname=r"NotoSansJP-Regular.ttf", size=fontsize)
+            a.fontsize = st.number_input("フォントサイズ", step=1, value=12)
+            a.fp = FontProperties(fname=r"NotoSansJP-Regular.ttf", size=a.fontsize)
 
         with col2:
-            ylog = st.checkbox("Y軸を対数軸にする", value=False)
-            grid = st.checkbox("グリッド", value="True")
+            a.ylog = st.checkbox("Y軸を対数軸にする", value=False)
+            a.grid = st.checkbox("グリッド", value="True")
 
 
 
@@ -243,79 +351,94 @@ with tab1:
             # st.write(uploaded_file.name)
             columns = []
             # 行列入れ替え
-            column = [[] for i in range(len(data_set[0]))]
+            a.column = [[] for i in range(len(data_set[0]))]
             for i in range(len(data_set[0])):
                 columns.append(i)
                 for j in range(len(data_set)):
-                    column[i].append(data_set[j][i])
+                    a.column[i].append(data_set[j][i])
 
             # st.write(data_set[0])
             # st.write(type(data_set))
 
             col1, col2 = st.columns(2)
             with col1:
-                xaxis = st.selectbox("Xとする列", columns)
+                a.xaxis = st.selectbox("Xとする列", columns)
             with col2:
                 yaxis = st.multiselect("Yとする列（複数選択可）", columns)
-            if xaxis in yaxis:
+            if a.xaxis in yaxis:
                 st.error("X軸とY軸で同じ列を選択しています", icon="🚨")
 
             # プロットオプション
             #if yaxis != None:
-            if xaxis not in yaxis:
+            if a.xaxis not in yaxis:
                 if yaxis:
                     st.write("マーカーのオプション")
-                property = [[] for i in range(len(yaxis))]
+                a.property = [[] for i in range(len(yaxis))]
                 for i, ycolumn in enumerate(yaxis):
-                    property[i].append(ycolumn)
+                    a.property[i].append(ycolumn)
                     st.write("第" + str(ycolumn) + "列")
                     poly = st.checkbox("折れ線グラフにする", value = False, key = i + 0.4)
                     col1, col2, col3, col4 = st.columns(4)
                     with col1:
                         color = st.selectbox("色を選択", (colors), key = i)
-                        property[i].append(color)
+                        a.property[i].append(color)
                     with col2:
                         marker = st.selectbox("形を選択", (markers_dict.keys()), key = i + 0.1, disabled = poly)
-                        property[i].append(markers_dict[marker])
+                        a.property[i].append(markers_dict[marker])
                     with col3:
                         size = st.number_input("大きさを入力", value = 20, min_value = 0, step = 1, key = i + 0.2)
-                        property[i].append(size)
+                        a.property[i].append(size)
                     with col4:
                         legend = st.text_input("凡例名を入力", key = i + 0.3)
-                        property[i].append(legend)
-                    property[i].append(poly)
+                        a.property[i].append(legend)
+                    a.property[i].append(poly)
                 #st.write(property)
             st.write("グラフのサイズ")
             col1, col2, col3= st.columns(3)
             with col1:
-                dpi = st.number_input("dpi", value = 300, step = 1, min_value = 10)
+                a.dpi = st.number_input("dpi", value = 300, step = 1, min_value = 10)
             with col2:
-                width = st.number_input("幅(インチ)", value = 8, step = 1, min_value = 1)
+                a.width = st.number_input("幅(インチ)", value = 8, step = 1, min_value = 1)
             with col3:
-                height = st.number_input("高さ(インチ)", value = 6, step = 1, min_value = 1)
-            st.write("サイズ(余白削除前)      " + str(width * dpi) + "×" + str(height * dpi))
+                a.height = st.number_input("高さ(インチ)", value = 6, step = 1, min_value = 1)
+            st.write("サイズ(余白削除前)      " + str(a.width * a.dpi) + "×" + str(a.height * a.dpi))
 
             col1, col2 = st.columns(2)
             with col1:
-                title = st.text_input("保存するファイル名", "plot")
+                a.title = st.text_input("保存するファイル名", "plot")
             with col2:
-                expantion = st.selectbox("保存する拡張子", (".png", ".jpg", ".svg", ".pdf"))
+                a.expantion = st.selectbox("保存する拡張子", (".png", ".jpg", ".svg", ".pdf"))
             st.caption("svg, pdfの場合プロットする点が多いと保存した画像が重くなるので注意")
 
     st.write("←サイドバーを開いて設定を表示(サイズ変更可能)")
     if uploaded_file:
         # プロット
-        fig = plot(dpi, width, height, toptick, bottomtick, lefttick, righttick, xtickdir, ytickdir, property, legends, ja_legends, minorticks, grid, xlog, ylog, xmin, xmax, ymin, ymax, xscale, yscale, fontsize, xlabel, ylabel, fp, column, xaxis, xtick_list_num, xtick_list, ytick_list_num, ytick_list)
+        # fig = a.plot_fig() <-エラーが出る
+        fig = a.makefig()
+        a.enable_ticks()
+        a.tick_direction()
+        a.custom_ticks()
+        a.valueprot()
+        a.display_legend()
+        a.add_minorticks()
+        a.display_grid()
+        a.enable_xlog()
+        a.enable_ylog()
+        a.xrange()
+        a.yrange()
+        a.set_ticks()
+        a.add_xlabel()
+        a.add_ylabel()
         # 表示
         st.pyplot(fig)
         # 保存
-        plt.savefig(title + expantion, bbox_inches="tight")
+        plt.savefig(a.title + a.expantion, bbox_inches="tight")
         # ダウンロード
-        with open(title + expantion, "rb") as file:
+        with open(a.title + a.expantion, "rb") as file:
             btn = st.download_button(
                 label = "画像を保存",
                 data = file,
-                file_name = title + expantion,
+                file_name = a.title + a.expantion,
                 )
 
 
@@ -356,20 +479,15 @@ with tab2:
             except:
                 st.error("関数を正しく入力できているか確認してください", icon="🚨")
 
-    class advancetick:  # クラスにする必要はあるのか？
-        ticksetting = False
-        xmajor_size=ymajor_size=xminor_size=yminor_size=xmajor_width=ymajor_width=xminor_width=yminor_width = 0
-    
-    a = advancetick()
-
     setfont = st.checkbox("フォントを指定する(軸ラベルのみ)", value = False, disabled=True)
     if setfont:
         fontpath = st.text_input("フォントファイルのパスを指定", placeholder = "例) C:\Windows\Fonts\HGRPP1.ttc")
         if fontpath:
-            fp = FontProperties(fname=fontpath, size=fontsize)
+            fp = FontProperties(fname=fontpath, size=a.fontsize)
         st.caption("システムフォントの場所 C:\\Windows\\Fonts ユーザーフォントの場所 C:\\Users\\ユーザー名\\AppData\\Local\\Microsoft\\Windows\\Fonts")
     
     a.ticksetting = st.checkbox("目盛り線の設定", value=False)
+    
     if a.ticksetting:
         col1, col2, col3, col4 = st.columns(4)
         with col1:
@@ -385,24 +503,36 @@ with tab2:
             a.xminor_width = st.number_input("X軸副目盛り線幅", value=0.6, step=0.1, min_value=0.0)
             a.yminor_width = st.number_input("Y軸副目盛り線幅", value=0.6, step=0.1, min_value=0.0)
 
-
     if function or setfont or a.ticksetting:
         if uploaded_file:
-            #st.write(a.ticksetting)
-            fig = plot(dpi, width, height, toptick, bottomtick, lefttick, righttick, xtickdir, ytickdir, property, legends, ja_legends, minorticks, grid, xlog, ylog, xmin, xmax, ymin, ymax, xscale, yscale, fontsize, xlabel, ylabel, fp, column, xaxis, xtick_list_num, xtick_list, ytick_list_num, ytick_list, a.ticksetting, a.xmajor_size, a.ymajor_size, a.xminor_size, a.yminor_size, a.xmajor_width, a.ymajor_width, a.xminor_width, a.yminor_width)
+            adv_fig = a.makefig()
+            a.enable_ticks()
+            a.tick_direction()
+            a.custom_ticks()
+            a.valueprot()
             if function and f and f_max > f_min:
                 plt.plot(x, y, c = f_color, linewidth = f_size, label = f_legend)
+            a.display_legend()
+            a.add_minorticks()
+            a.display_grid()
+            a.enable_xlog()
+            a.enable_ylog()
+            a.xrange()
+            a.yrange()
+            a.set_ticks()
+            a.add_xlabel()
+            a.add_ylabel()
             try:
-                st.pyplot(fig)
+                st.pyplot(adv_fig)
                 # 保存
-                plt.savefig(title + expantion, bbox_inches="tight")
+                plt.savefig(a.title + a.expantion, bbox_inches="tight")
                 # ダウンロード
-                with open(title + expantion, "rb") as file:
+                with open(a.title + a.expantion, "rb") as file:
                     btn = st.download_button(
                         label = "画像を保存",
                         data = file,
-                        file_name = title + expantion,
-                        key=1
+                        file_name = a.title + a.expantion,
+                        key="adv_download"
                         )
             except:
                 st.error("フォントファイルのパスを正しく入力できているか確認してください", icon="🚨")
@@ -453,4 +583,7 @@ with tab3:
     '''
 
 with tab4:
-    st.subheader("既知のバグ")
+    st.subheader("既知の不具合")
+    '''
+    
+    '''
