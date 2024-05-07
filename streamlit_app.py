@@ -229,7 +229,7 @@ class plot_main:
         return fig
 
 # マーカーのオプション
-colors = ["black", "gray", "lightgrey", "red", "coral", "orangered", "sandybrown", "darkorange", "orange", "gold", "yellow", "lawngreen", "green", "darkgreen", "lime", "aqua", "dodgerblue", "royalblue", "darkblue", "violet", "purple", "magenta", "hotpink"]
+colors = ["white", "black", "gray", "lightgrey", "red", "coral", "orangered", "sandybrown", "darkorange", "orange", "gold", "yellow", "lawngreen", "green", "darkgreen", "lime", "aqua", "dodgerblue", "royalblue", "darkblue", "violet", "purple", "magenta", "hotpink"]
 markers_dict = {"●": "o", "■": ",", "▼": "v", "▲": "^","◆": "D", "✚": "+", "✖": "x"}
 linetype_dict = {"実線":"-", "破線":"--", "点線":":", "一点鎖線":"-."}
 
@@ -264,6 +264,7 @@ with tab1:
         with col2:
             a.xmax = st.number_input("X軸の最大値", value=None, step=0.1)
         st.caption("両方とも入力していない場合自動で調整されます")
+        st.caption("0.01未満の値を入力した場合0.00と表示されます")
         if a.xmin != None:
             if a.xmax != None:
                 if a.xmin > a.xmax:
@@ -276,6 +277,7 @@ with tab1:
         with col2:
             a.ymax = st.number_input("Y軸の最大値", value=None, step=0.01)
         st.caption("両方とも入力していない場合自動で調整されます")
+        st.caption("0.01未満の値を入力した場合0.00と表示されます")
         if a.ymin != None:
             if a.ymax != None:
                 if a.ymin > a.ymax:
@@ -391,7 +393,7 @@ with tab1:
                         linewidth = st.number_input("線の幅", value = 3, min_value = 0, step = 1, key = i + 0.7)
                         a.property[i].append(linewidth)
                     with col3:
-                        color = st.selectbox("色", (colors), key = i)
+                        color = st.selectbox("色", (colors), key = i, index=1)
                         a.property[i].append(color)
                         legend = st.text_input("凡例名", key = i + 0.3)
                         a.property[i].append(legend)
@@ -450,9 +452,8 @@ with tab1:
 
 with tab2:
     st.subheader("高度な設定")
-    # 関数を表示
-    function = st.checkbox("関数を表示", value = False)
-    if function:
+    with st.expander("ユーザー関数を表示"):
+        function = st.checkbox("有効化", value = False, key="function")
         f = st.text_input("表示したいxの関数を入力", placeholder = "例) np.sin(x), x**2 - 4*x + 3")
         st.caption("累乗はアスタリスク2つ(**)で表す 三角関数等はhttps://deepage.net/features/numpy-math.html などを参照")
         st.write("表示する範囲(入力必須)")
@@ -493,16 +494,15 @@ with tab2:
             except:
                 st.error("関数を正しく入力できているか確認してください", icon="🚨")
 
-    setfont = st.checkbox("フォントを指定する(軸ラベルのみ)", value = False, disabled=True)
-    if setfont:
+    with st.expander("フォントを指定する(軸ラベルのみ)"):
+        setfont = st.checkbox("有効化", value = False, disabled=True, key="font")
         fontpath = st.text_input("フォントファイルのパスを指定", placeholder = "例) C:\Windows\Fonts\HGRPP1.ttc")
         if fontpath:
             fp = FontProperties(fname=fontpath, size=a.fontsize)
         st.caption("システムフォントの場所 C:\\Windows\\Fonts ユーザーフォントの場所 C:\\Users\\ユーザー名\\AppData\\Local\\Microsoft\\Windows\\Fonts")
     
-    a.ticksetting = st.checkbox("目盛り線の設定", value=False)
-    
-    if a.ticksetting:
+    with st.expander("目盛り線の設定"):
+        a.ticksetting = st.checkbox("有効化", value=False, key="ticksetting")
         col1, col2, col3, col4 = st.columns(4)
         with col1:
             a.xmajor_size = st.number_input("X軸主目盛り線長さ", value=4.0, step=0.1, min_value=0.0)
@@ -517,16 +517,34 @@ with tab2:
             a.xminor_width = st.number_input("X軸副目盛り線幅", value=0.6, step=0.1, min_value=0.0)
             a.yminor_width = st.number_input("Y軸副目盛り線幅", value=0.6, step=0.1, min_value=0.0)
 
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        setframewidh = st.checkbox("グラフの枠の幅を設定", value=False)
-        framewidth = st.number_input("グラフの枠の幅", value=0.8, min_value=0.0, step=0.1, disabled=not setframewidh)
-    with col2:
-        setgridwidth =  st.checkbox("グリッドの線幅を設定", value=False)
-        gridwidth = st.number_input("グリッドの線幅", value=0.8, min_value=0.0, step=0.1, disabled=not setgridwidth)
-    with col3:
-        setgridcolor = st.checkbox("グリッドの色を選択", value=False)
-        gridcolor = st.selectbox("色を選択", (colors), key="gridcolor", disabled=not setgridcolor)
+    with st.expander("凡例の詳細設定"):
+        legendsetting = st.checkbox("有効化", value=False, key="legendsetting")
+        col1, col2 = st.columns(2)
+        with col1:
+            legend_frame = st.checkbox("枠を表示", value=True)
+            legend_transparency = st.slider("背景の不透明度", min_value=0.0, max_value=1.0, step=0.1, value=0.8)
+        with col2:
+            legend_corner = st.checkbox("角を丸める", value=True)
+            legend_cols = st.slider("凡例の列数", min_value=1, max_value=5, step=1)
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            legend_framecolor = st.selectbox("枠の色", (colors), index=1)
+        with col2:
+            legend_color = st.selectbox("背景の色", (colors))
+        with col3:
+            legend_lettercolor = st.selectbox("文字の色", (colors), index=1)
+
+    with st.expander("その他の設定"):
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            setframewidh = st.checkbox("グラフの枠の幅を設定", value=False)
+            framewidth = st.number_input("グラフの枠の幅", value=0.8, min_value=0.0, step=0.1, disabled=not setframewidh)
+        with col2:
+            setgridwidth =  st.checkbox("グリッドの線幅を設定", value=False)
+            gridwidth = st.number_input("グリッドの線幅", value=0.8, min_value=0.0, step=0.1, disabled=not setgridwidth)
+        with col3:
+            setgridcolor = st.checkbox("グリッドの色を選択", value=False)
+            gridcolor = st.selectbox("色を選択", (colors), key="gridcolor", disabled=not setgridcolor, index=3)
 
     if function or setfont or a.ticksetting or setframewidh or setgridwidth or setgridcolor:
         if uploaded_file:
@@ -545,7 +563,10 @@ with tab2:
             a.tick_direction()
             a.custom_ticks()
             a.valueplot()
-            a.display_legend()
+            if legendsetting:
+                plt.legend(fontsize=a.fontsize, frameon=legend_frame, fancybox=legend_corner, facecolor=legend_color, framealpha=legend_transparency, edgecolor=legend_framecolor, ncol=legend_cols, labelcolor=legend_lettercolor)
+            else:
+                a.display_legend()
             a.add_minorticks()
             a.display_grid()
             a.enable_xlog()
