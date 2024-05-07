@@ -471,7 +471,7 @@ with tab2:
         with col1:
             f_linetype = st.selectbox("線の種類", (linetype_dict.keys()))
         with col2:
-            f_color = st.selectbox("色", (colors))
+            f_color = st.selectbox("色", (colors), index=1)
         with col3:
             f_size = st.number_input("線の幅", value = 3.0, min_value = 0.0, step = 0.5)
         with col4:
