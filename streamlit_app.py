@@ -417,6 +417,9 @@ with tab1:
     if uploaded_file:
         # プロット
         # fig = a.plot_fig() <-エラーが出る
+        plt.rcParams["grid.linewidth"] = 0.8
+        plt.rcParams["axes.linewidth"] = 0.8
+        plt.rcParams["grid.color"] = "#b0b0b0"
         fig = a.makefig()
         a.enable_ticks()
         a.tick_direction()
@@ -514,15 +517,35 @@ with tab2:
             a.xminor_width = st.number_input("X軸副目盛り線幅", value=0.6, step=0.1, min_value=0.0)
             a.yminor_width = st.number_input("Y軸副目盛り線幅", value=0.6, step=0.1, min_value=0.0)
 
-    if function or setfont or a.ticksetting:
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        setframewidh = st.checkbox("グラフの枠の幅を設定", value=False)
+        framewidth = st.number_input("グラフの枠の幅", value=0.8, min_value=0.0, step=0.1, disabled=not setframewidh)
+    with col2:
+        setgridwidth =  st.checkbox("グリッドの線幅を設定", value=False)
+        gridwidth = st.number_input("グリッドの線幅", value=0.8, min_value=0.0, step=0.1, disabled=not setgridwidth)
+    with col3:
+        setgridcolor = st.checkbox("グリッドの色を選択", value=False)
+        gridcolor = st.selectbox("色を選択", (colors), key="gridcolor", disabled=not setgridcolor)
+
+    if function or setfont or a.ticksetting or setframewidh or setgridwidth or setgridcolor:
         if uploaded_file:
             adv_fig = a.makefig()
             a.enable_ticks()
             a.tick_direction()
             a.custom_ticks()
             a.valueplot()
+
+            # 設定適用
             if function and f and f_max > f_min:
                 plt.plot(x, y, linetype_dict[f_linetype], c = f_color, linewidth = f_size, label = f_legend)
+            if setgridwidth:
+                plt.rcParams["grid.linewidth"] = gridwidth
+            if setframewidh:
+                plt.rcParams["axes.linewidth"] = framewidth
+            if setgridcolor:
+                plt.rcParams["grid.color"] = gridcolor
+
             a.display_legend()
             a.add_minorticks()
             a.display_grid()
