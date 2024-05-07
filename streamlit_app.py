@@ -546,7 +546,7 @@ with tab2:
             setgridcolor = st.checkbox("グリッドの色を選択", value=False)
             gridcolor = st.selectbox("色を選択", (colors), key="gridcolor", disabled=not setgridcolor, index=3)
 
-    if function or setfont or a.ticksetting or setframewidh or setgridwidth or setgridcolor:
+    if function or setfont or a.ticksetting or setframewidh or setgridwidth or setgridcolor or legendsetting:
         if uploaded_file:
             adv_fig = a.makefig()
             # 設定適用
