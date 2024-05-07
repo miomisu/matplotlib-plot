@@ -531,11 +531,6 @@ with tab2:
     if function or setfont or a.ticksetting or setframewidh or setgridwidth or setgridcolor:
         if uploaded_file:
             adv_fig = a.makefig()
-            a.enable_ticks()
-            a.tick_direction()
-            a.custom_ticks()
-            a.valueplot()
-
             # 設定適用
             if function and f and f_max > f_min:
                 plt.plot(x, y, linetype_dict[f_linetype], c = f_color, linewidth = f_size, label = f_legend)
@@ -546,6 +541,10 @@ with tab2:
             if setgridcolor:
                 plt.rcParams["grid.color"] = gridcolor
 
+            a.enable_ticks()
+            a.tick_direction()
+            a.custom_ticks()
+            a.valueplot()
             a.display_legend()
             a.add_minorticks()
             a.display_grid()
