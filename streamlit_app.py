@@ -417,10 +417,10 @@ with tab1:
     if uploaded_file:
         # プロット
         # fig = a.plot_fig() <-エラーが出る
+        fig = a.makefig()
         plt.rcParams["grid.linewidth"] = 0.8
         plt.rcParams["axes.linewidth"] = 0.8
         plt.rcParams["grid.color"] = "#b0b0b0"
-        fig = a.makefig()
         a.enable_ticks()
         a.tick_direction()
         a.custom_ticks()
