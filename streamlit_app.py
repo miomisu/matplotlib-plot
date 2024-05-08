@@ -453,7 +453,7 @@ with tab1:
 with tab2:
     st.subheader("高度な設定")
     with st.expander("ユーザー関数を表示"):
-        function = st.checkbox("有効化", value = False, key="function")
+        setfunction = st.checkbox("有効化", value = False, key="function")
         f = st.text_input("表示したいxの関数を入力", placeholder = "例) np.sin(x), x**2 - 4*x + 3")
         st.caption("累乗はアスタリスク2つ(**)で表す 三角関数等はhttps://deepage.net/features/numpy-math.html などを参照")
         st.write("表示する範囲(入力必須)")
@@ -518,6 +518,7 @@ with tab2:
             a.yminor_width = st.number_input("Y軸補助目盛り線幅", value=0.6, step=0.1, min_value=0.0)
 
     with st.expander("凡例の詳細設定"):
+        legendloc_dict = {"自動": "best", "内側左上": "upper left", "内側中央上": "upper center", "内側右上": "upper right", "内側中央左": "center left", "内側中央": "center", "内側中央右": "center right", "内側左下": "lower left", "内側中央下": "lower center", "内側右下": "lower right", "外側中央上": ["lower center", 0.5, 1], "外側右上": ["upper left", 1, 1.02], "外側右中央": ["center left", 1, 0.5], "外側右下": ["lower left", 1, -0.015],"外側中央下": ["upper center", 0.5, -0.1] }
         legendsetting = st.checkbox("有効化", value=False, key="legendsetting")
         col1, col2 = st.columns(2)
         with col1:
@@ -533,6 +534,7 @@ with tab2:
             legend_color = st.selectbox("背景の色", (colors))
         with col3:
             legend_lettercolor = st.selectbox("文字の色", (colors), index=1)
+        legendloc = st.selectbox("位置", (legendloc_dict))
 
     with st.expander("グリッドの設定"):
         setothersettings = st.checkbox("有効化", value=False, key="setothersettings")
@@ -574,11 +576,11 @@ with tab2:
         setframewidh = st.checkbox("グラフの枠の幅を設定", value=False)
         framewidth = st.number_input("グラフの枠の幅", value=0.8, min_value=0.0, step=0.1, disabled=not setframewidh)
 
-    if function or setfont or a.ticksetting or setothersettings:
+    if setfunction or setfont or a.ticksetting or setothersettings:
         if uploaded_file:
             adv_fig = a.makefig()
             # 設定適用
-            if function and f and f_max > f_min:
+            if setfunction and f and f_max > f_min:
                 plt.plot(x, y, linetype_dict[f_linetype], c = f_color, linewidth = f_size, label = f_legend)
             if setframewidh:
                 plt.rcParams["axes.linewidth"] = framewidth
@@ -588,7 +590,10 @@ with tab2:
             a.custom_ticks()
             a.valueplot()
             if legendsetting:
-                plt.legend(fontsize=a.fontsize, frameon=legend_frame, fancybox=legend_corner, facecolor=legend_color, framealpha=legend_transparency, edgecolor=legend_framecolor, ncol=legend_cols, labelcolor=legend_lettercolor)
+                if "外側" in legendloc:
+                    plt.legend(fontsize=a.fontsize, frameon=legend_frame, fancybox=legend_corner, facecolor=legend_color, framealpha=legend_transparency, edgecolor=legend_framecolor, ncol=legend_cols, labelcolor=legend_lettercolor, loc=legendloc_dict[legendloc][0], bbox_to_anchor=(legendloc_dict[legendloc][1], legendloc_dict[legendloc][2]))
+                else:
+                    plt.legend(fontsize=a.fontsize, frameon=legend_frame, fancybox=legend_corner, facecolor=legend_color, framealpha=legend_transparency, edgecolor=legend_framecolor, ncol=legend_cols, labelcolor=legend_lettercolor, loc=legendloc_dict[legendloc])
             else:
                 a.display_legend()
             a.add_minorticks()
