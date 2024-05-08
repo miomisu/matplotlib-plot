@@ -145,7 +145,7 @@ class plot_main:
         if self.legends == True and self.ja_legends == True:
             plt.legend(fontsize = self.fontsize, prop={"family":"Meiryo"})
     
-    # 副目盛り追加
+    # 補助目盛り追加
     def add_minorticks(self):
         if self.minorticks:
             plt.minorticks_on()
@@ -241,7 +241,7 @@ with tab1:
     with st.sidebar:
         st.subheader("基本設定")
         # ファイル読み込みオプション
-        sh = st.number_input("無視する先頭からの行数", min_value=0, max_value=50, value="min", step=1)
+        sh = st.number_input("無視する先頭からの行数", min_value=0, value="min", step=1)
         ft = st.radio("ファイルの種類", ["CSV(カンマ区切り)", "TSV(タブ区切り)"])
         if ft == "CSV(カンマ区切り)":
             dlmt = ","
@@ -316,7 +316,7 @@ with tab1:
             except:
                 st.error("数値を入力してください", icon="🚨")
 
-            a.minorticks = st.checkbox("副目盛り", value="True")
+            a.minorticks = st.checkbox("補助目盛り", value="True")
 
         col1, col2 = st.columns(2)
         with col1:
@@ -471,7 +471,7 @@ with tab2:
         with col1:
             f_linetype = st.selectbox("線の種類", (linetype_dict.keys()))
         with col2:
-            f_color = st.selectbox("色", (colors), index=1)
+            f_color = st.selectbox("色", (colors))
         with col3:
             f_size = st.number_input("線の幅", value = 3.0, min_value = 0.0, step = 0.5)
         with col4:
@@ -508,14 +508,14 @@ with tab2:
             a.xmajor_size = st.number_input("X軸主目盛り線長さ", value=4.0, step=0.1, min_value=0.0)
             a.ymajor_size = st.number_input("Y軸主目盛り線長さ", value=4.0, step=0.1, min_value=0.0)
         with col2:
-            a.xminor_size = st.number_input("X軸副目盛り線長さ", value=2.0, step=0.1, min_value=0.0)
-            a.yminor_size = st.number_input("Y軸副目盛り線長さ", value=2.0, step=0.1, min_value=0.0)
+            a.xminor_size = st.number_input("X軸補助目盛り線長さ", value=2.0, step=0.1, min_value=0.0)
+            a.yminor_size = st.number_input("Y軸補助目盛り線長さ", value=2.0, step=0.1, min_value=0.0)
         with col3:
             a.xmajor_width = st.number_input("X軸主目盛り線幅", value=1.0, step=0.1, min_value=0.0)
             a.ymajor_width = st.number_input("Y軸主目盛り線幅", value=1.0, step=0.1, min_value=0.0)
         with col4:
-            a.xminor_width = st.number_input("X軸副目盛り線幅", value=0.6, step=0.1, min_value=0.0)
-            a.yminor_width = st.number_input("Y軸副目盛り線幅", value=0.6, step=0.1, min_value=0.0)
+            a.xminor_width = st.number_input("X軸補助目盛り線幅", value=0.6, step=0.1, min_value=0.0)
+            a.yminor_width = st.number_input("Y軸補助目盛り線幅", value=0.6, step=0.1, min_value=0.0)
 
     with st.expander("凡例の詳細設定"):
         legendsetting = st.checkbox("有効化", value=False, key="legendsetting")
@@ -534,30 +534,54 @@ with tab2:
         with col3:
             legend_lettercolor = st.selectbox("文字の色", (colors), index=1)
 
-    with st.expander("その他の設定"):
+    with st.expander("グリッドの設定"):
+        setothersettings = st.checkbox("有効化", value=False, key="setothersettings")
+        xgrid = st.radio("X軸のグリッド位置", ["なし", "主目盛り", "補助目盛り", "両方"], index=1, horizontal=True)
+
         col1, col2, col3 = st.columns(3)
         with col1:
-            setframewidh = st.checkbox("グラフの枠の幅を設定", value=False)
-            framewidth = st.number_input("グラフの枠の幅", value=0.8, min_value=0.0, step=0.1, disabled=not setframewidh)
+            xmajorgridtype = st.selectbox("X軸主目盛りグリッド種類", (linetype_dict.keys()))
+            xminorgridtype = st.selectbox("X軸補助目盛りグリッド種類", (linetype_dict.keys()))
         with col2:
-            setgridwidth =  st.checkbox("グリッドの線幅を設定", value=False)
-            gridwidth = st.number_input("グリッドの線幅", value=0.8, min_value=0.0, step=0.1, disabled=not setgridwidth)
+            xmajorgridwidth = st.number_input("X軸主目盛りグリッド線幅", value=0.8, min_value=0.0, step=0.1)
+            xminorgridwidth = st.number_input("X軸補助目盛りグリッド線幅", value=0.8, min_value=0.0, step=0.1)
         with col3:
-            setgridcolor = st.checkbox("グリッドの色を選択", value=False)
-            gridcolor = st.selectbox("色を選択", (colors), key="gridcolor", disabled=not setgridcolor, index=3)
+            xmajorgridcolor = st.selectbox("X軸主目盛りグリッドの色", (colors), index=None)
+            if xmajorgridcolor == None:
+                xmajorgridcolor = "#b0b0b0"
+            xminorgridcolor = st.selectbox("X軸補助目盛りグリッドの色", (colors), index=None)
+            if xminorgridcolor == None:
+                xminorgridcolor = "#b0b0b0"
 
-    if function or setfont or a.ticksetting or setframewidh or setgridwidth or setgridcolor or legendsetting:
+        ygrid = st.radio("Y軸のグリッド位置", ["なし", "主目盛り", "補助目盛り", "両方"], index=1, horizontal=True)
+        
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            ymajorgridtype = st.selectbox("Y軸主グリッド種類", (linetype_dict.keys()))
+            yminorgridtype = st.selectbox("Y軸補助目盛りグリッド種類", (linetype_dict.keys()))
+        with col2:
+            ymajorgridwidth = st.number_input("Y軸主目盛りグリッド線幅", value=0.8, min_value=0.0, step=0.1)
+            yminorgridwidth = st.number_input("Y軸補助目盛りグリッド線幅", value=0.8, min_value=0.0, step=0.1)
+        with col3:
+            ymajorgridcolor = st.selectbox("Y軸主目盛りグリッドの色", (colors), index=None)
+            if ymajorgridcolor == None:
+                ymajorgridcolor = "#b0b0b0"
+            yminorgridcolor = st.selectbox("Y軸補助目盛りグリッドの色", (colors), index=None)
+            if yminorgridcolor == None:
+                yminorgridcolor = "#b0b0b0"
+
+    with st.expander("その他の設定"):
+        setframewidh = st.checkbox("グラフの枠の幅を設定", value=False)
+        framewidth = st.number_input("グラフの枠の幅", value=0.8, min_value=0.0, step=0.1, disabled=not setframewidh)
+
+    if function or setfont or a.ticksetting or setothersettings:
         if uploaded_file:
             adv_fig = a.makefig()
             # 設定適用
             if function and f and f_max > f_min:
                 plt.plot(x, y, linetype_dict[f_linetype], c = f_color, linewidth = f_size, label = f_legend)
-            if setgridwidth:
-                plt.rcParams["grid.linewidth"] = gridwidth
             if setframewidh:
                 plt.rcParams["axes.linewidth"] = framewidth
-            if setgridcolor:
-                plt.rcParams["grid.color"] = gridcolor
 
             a.enable_ticks()
             a.tick_direction()
@@ -568,7 +592,20 @@ with tab2:
             else:
                 a.display_legend()
             a.add_minorticks()
-            a.display_grid()
+            if xgrid == "主目盛り":
+                plt.grid(which="major", axis="x", linestyle=linetype_dict[xmajorgridtype], c=xmajorgridcolor, linewidth=xmajorgridwidth)
+            elif xgrid == "補助目盛り":
+                plt.grid(which="minor", axis="x", linestyle=linetype_dict[xminorgridtype], c=xminorgridcolor, linewidth=xminorgridwidth)
+            elif xgrid == "両方":
+                plt.grid(which="major", axis="x", linestyle=linetype_dict[xmajorgridtype], c=xmajorgridcolor, linewidth=xmajorgridwidth)
+                plt.grid(which="minor", axis="x", linestyle=linetype_dict[xminorgridtype], c=xminorgridcolor, linewidth=xminorgridwidth)
+            if ygrid == "主目盛り":
+                plt.grid(which="major", axis="y", linestyle=linetype_dict[ymajorgridtype], c=ymajorgridcolor, linewidth=ymajorgridwidth)
+            elif ygrid == "補助目盛り":
+                plt.grid(which="minor", axis="y", linestyle=linetype_dict[yminorgridtype], c=yminorgridcolor, linewidth=yminorgridwidth)
+            elif ygrid == "両方":
+                plt.grid(which="major", axis="y", linestyle=linetype_dict[ymajorgridtype], c=ymajorgridcolor, linewidth=ymajorgridwidth)
+                plt.grid(which="minor", axis="y", linestyle=linetype_dict[yminorgridtype], c=yminorgridcolor, linewidth=yminorgridwidth)
             a.enable_xlog()
             a.enable_ylog()
             a.xrange()
@@ -629,7 +666,7 @@ with tab3:
     - フォントの指定
         - サーバー上での動作では未対応
     - 目盛り線の設定
-        - 各軸の主、副目盛り線の長さ、幅を変更可能
+        - 各軸の主、補助目盛り線の長さ、幅を変更可能
     - 凡例の詳細設定
         - 凡例の枠、背景、色などを変更可能
     - その他の設定
