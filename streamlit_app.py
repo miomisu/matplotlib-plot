@@ -15,7 +15,7 @@ tab1, tab2, tab3, tab4 = st.tabs(["基本のプロット", "高度な設定", "�
 
 # ファイル読み込み用関数
 @st.cache_data
-def get_data(file):# -> np.ndarray:
+def get_data(file, dlmt, sh):# -> np.ndarray:
     data_set = np.genfromtxt(
         fname=file,
         dtype="float",
@@ -25,7 +25,7 @@ def get_data(file):# -> np.ndarray:
     return data_set
 
 @st.cache_data
-def get_data2(file) -> np.ndarray:
+def get_data2(file, dlmt, sh) -> np.ndarray:
     data_set = np.genfromtxt(
         fname=file,
         dtype="float",
@@ -252,7 +252,7 @@ with tab1:
         uploaded_file = st.file_uploader("数値だけが入力されたCSV、TSV、TXTファイルを選択", type=["csv", "tsv", "txt"])
 
         if uploaded_file:
-            data_set = get_data(uploaded_file)
+            data_set = get_data(uploaded_file, dlmt, sh)
             with st.expander("データを見る"):
                 st.write(data_set)
 
@@ -625,11 +625,15 @@ with tab3:
         - 散布図に関数のグラフを表示可能
         - xを変数とした関数を入力する
         - 一般的な数式のように四則演算を入力可能 足し算:`+` 引き算:`-`  掛け算`*` 割り算:`/` 累乗:`**`
-        - 三角関数や対数関数はnumpyというライブラリの表記に従って入力する
+        - 三角関数や対数関数などはnumpyというライブラリの表記に従って入力する
     - フォントの指定
         - サーバー上での動作では未対応
     - 目盛り線の設定
         - 各軸の主、副目盛り線の長さ、幅を変更可能
+    - 凡例の詳細設定
+        - 凡例の枠、背景、色などを変更可能
+    - その他の設定
+        - グラフの枠、グリッドの幅や色を変更可能
     '''
     st.subheader("その他")
     '''
