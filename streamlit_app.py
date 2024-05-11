@@ -230,7 +230,7 @@ class plot_main:
 
 # マーカーのオプション
 colors = ["white", "black", "gray", "lightgrey", "red", "coral", "orangered", "sandybrown", "darkorange", "orange", "gold", "yellow", "lawngreen", "green", "darkgreen", "lime", "aqua", "dodgerblue", "royalblue", "darkblue", "violet", "purple", "magenta", "hotpink"]
-markers_dict = {"●": "o", "■": ",", "▼": "v", "▲": "^","◆": "D", "✚": "+", "✖": "x"}
+markers_dict = {"●": "o", "■": "s", "▼": "v", "▲": "^","◆": "D", "✚": "+", "✖": "x"}
 linetype_dict = {"実線":"-", "破線":"--", "点線":":", "一点鎖線":"-."}
 
 # オブジェクト作成
@@ -576,7 +576,7 @@ with tab2:
         setframewidh = st.checkbox("グラフの枠の幅を設定", value=False)
         framewidth = st.number_input("グラフの枠の幅", value=0.8, min_value=0.0, step=0.1, disabled=not setframewidh)
 
-    if setfunction or setfont or a.ticksetting or setothersettings:
+    if setfunction or setfont or a.ticksetting or setothersettings or legendsetting:
         if uploaded_file:
             adv_fig = a.makefig()
             # 設定適用
