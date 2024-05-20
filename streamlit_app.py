@@ -537,7 +537,7 @@ with tab2:
         legendloc = st.selectbox("位置", (legendloc_dict))
 
     with st.expander("グリッドの設定"):
-        setothersettings = st.checkbox("有効化", value=False, key="setothersettings")
+        gridsettings = st.checkbox("有効化", value=False, key="gridsettings")
         xgrid = st.radio("X軸のグリッド位置", ["なし", "主目盛り", "補助目盛り", "両方"], index=1, horizontal=True)
 
         col1, col2, col3 = st.columns(3)
@@ -576,7 +576,7 @@ with tab2:
         setframewidh = st.checkbox("グラフの枠の幅を設定", value=False)
         framewidth = st.number_input("グラフの枠の幅", value=0.8, min_value=0.0, step=0.1, disabled=not setframewidh)
 
-    if setfunction or setfont or a.ticksetting or setothersettings or legendsetting:
+    if setfunction or setfont or a.ticksetting or gridsettings or legendsetting:
         if uploaded_file:
             adv_fig = a.makefig()
             # 設定適用
@@ -597,20 +597,23 @@ with tab2:
             else:
                 a.display_legend()
             a.add_minorticks()
-            if xgrid == "主目盛り":
-                plt.grid(which="major", axis="x", linestyle=linetype_dict[xmajorgridtype], c=xmajorgridcolor, linewidth=xmajorgridwidth)
-            elif xgrid == "補助目盛り":
-                plt.grid(which="minor", axis="x", linestyle=linetype_dict[xminorgridtype], c=xminorgridcolor, linewidth=xminorgridwidth)
-            elif xgrid == "両方":
-                plt.grid(which="major", axis="x", linestyle=linetype_dict[xmajorgridtype], c=xmajorgridcolor, linewidth=xmajorgridwidth)
-                plt.grid(which="minor", axis="x", linestyle=linetype_dict[xminorgridtype], c=xminorgridcolor, linewidth=xminorgridwidth)
-            if ygrid == "主目盛り":
-                plt.grid(which="major", axis="y", linestyle=linetype_dict[ymajorgridtype], c=ymajorgridcolor, linewidth=ymajorgridwidth)
-            elif ygrid == "補助目盛り":
-                plt.grid(which="minor", axis="y", linestyle=linetype_dict[yminorgridtype], c=yminorgridcolor, linewidth=yminorgridwidth)
-            elif ygrid == "両方":
-                plt.grid(which="major", axis="y", linestyle=linetype_dict[ymajorgridtype], c=ymajorgridcolor, linewidth=ymajorgridwidth)
-                plt.grid(which="minor", axis="y", linestyle=linetype_dict[yminorgridtype], c=yminorgridcolor, linewidth=yminorgridwidth)
+            if gridsettings:
+                if xgrid == "主目盛り":
+                    plt.grid(which="major", axis="x", linestyle=linetype_dict[xmajorgridtype], c=xmajorgridcolor, linewidth=xmajorgridwidth)
+                elif xgrid == "補助目盛り":
+                    plt.grid(which="minor", axis="x", linestyle=linetype_dict[xminorgridtype], c=xminorgridcolor, linewidth=xminorgridwidth)
+                elif xgrid == "両方":
+                    plt.grid(which="major", axis="x", linestyle=linetype_dict[xmajorgridtype], c=xmajorgridcolor, linewidth=xmajorgridwidth)
+                    plt.grid(which="minor", axis="x", linestyle=linetype_dict[xminorgridtype], c=xminorgridcolor, linewidth=xminorgridwidth)
+                if ygrid == "主目盛り":
+                    plt.grid(which="major", axis="y", linestyle=linetype_dict[ymajorgridtype], c=ymajorgridcolor, linewidth=ymajorgridwidth)
+                elif ygrid == "補助目盛り":
+                    plt.grid(which="minor", axis="y", linestyle=linetype_dict[yminorgridtype], c=yminorgridcolor, linewidth=yminorgridwidth)
+                elif ygrid == "両方":
+                    plt.grid(which="major", axis="y", linestyle=linetype_dict[ymajorgridtype], c=ymajorgridcolor, linewidth=ymajorgridwidth)
+                    plt.grid(which="minor", axis="y", linestyle=linetype_dict[yminorgridtype], c=yminorgridcolor, linewidth=yminorgridwidth)
+            else:
+                a.display_grid()
             a.enable_xlog()
             a.enable_ylog()
             a.xrange()
