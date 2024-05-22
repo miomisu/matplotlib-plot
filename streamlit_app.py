@@ -241,7 +241,7 @@ with st.sidebar:
     st.header("基本設定")
     # ファイル読み込みオプション
     sh = st.number_input("無視する先頭からの行数", min_value=0, value="min", step=1)
-    ft = st.radio("ファイルの種類", ["CSV(カンマ区切り)", "TSV(タブ区切り)"])
+    ft = st.radio("ファイルの種類", ["CSV(カンマ区切り)", "TSV(タブ区切り)"], horizontal=True)
     if ft == "CSV(カンマ区切り)":
         dlmt = ","
     else:
