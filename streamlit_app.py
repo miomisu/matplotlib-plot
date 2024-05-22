@@ -238,7 +238,7 @@ param_list = [None for i in range(43)]
 a = plot_main(*param_list)
 
 with st.sidebar:
-    st.subheader("基本設定")
+    st.header("基本設定")
     # ファイル読み込みオプション
     sh = st.number_input("無視する先頭からの行数", min_value=0, value="min", step=1)
     ft = st.radio("ファイルの種類", ["CSV(カンマ区切り)", "TSV(タブ区切り)"])
@@ -326,6 +326,7 @@ with st.sidebar:
     with col2:
         a.ylog = st.checkbox("Y軸を対数軸にする", value=False)
         a.grid = st.checkbox("グリッド", value="True")
+    yaxis = []
     if uploaded_file:
         #data_set = get_data(uploaded_file)
         # st.write(uploaded_file.name)
@@ -341,6 +342,7 @@ with st.sidebar:
             st.error("正しいファイルを選択できているか確認してください", icon="🚨")
         # st.write(data_set[0])
         # st.write(type(data_set))
+        st.header("プロットするデータの選択")
         col1, col2 = st.columns(2)
         with col1:
             a.xaxis = st.selectbox("Xとする列", columns)
@@ -404,6 +406,7 @@ with tab1:
         plt.rcParams["grid.linewidth"] = 0.8
         plt.rcParams["axes.linewidth"] = 0.8
         plt.rcParams["grid.color"] = "#b0b0b0"
+        plt.rcParams['axes.axisbelow'] = True
         a.enable_ticks()
         a.tick_direction()
         a.custom_ticks()
@@ -429,24 +432,32 @@ with tab1:
                 data = file,
                 file_name = a.title + a.expantion,
                 )
+    st.write('''
+            **更新履歴**
+            - 近似直線・近似曲線の表示機能を追加(2024/05/22)
+            - プロットがグリッドより手前に描画されるように変更(2024/05/22)''')
 
 
 with tab2:
     st.subheader("高度な設定")
-    with st.container(height=400):
+    with st.container(height=450):
         with st.expander("ユーザー関数を表示"):
             setfunction = st.checkbox(":orange-background[有効化]", value = False, key="function")
             f = st.text_input("表示したいxの関数を入力", placeholder = "例) np.sin(x), x**2 - 4*x + 3")
             st.caption("累乗はアスタリスク2つ(**)で表す 三角関数等はhttps://deepage.net/features/numpy-math.html などを参照")
             st.write("表示する範囲(入力必須)")
             # オプション
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                f_min = st.number_input("最小値", value=0.0, step=0.01)
-            with col2:
-                f_max = st.number_input("最大値", value=10.0, step=0.01)
-            with col3:
-                slice = st.number_input("分割数(滑らかさ)", value = 100, min_value = 0, step = 1)
+            f_min = 0
+            f_max = 1
+            slice = 1
+            if a.xaxis:
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    f_min = st.number_input("最小値", value=np.min(a.column[a.xaxis]), step=0.01)
+                with col2:
+                    f_max = st.number_input("最大値", value=np.max(a.column[a.xaxis]), step=0.01)
+                with col3:
+                    slice = st.number_input("分割数(滑らかさ)", value = 100, min_value = 0, step = 1)
 
             st.write("オプション")
             col1, col2, col3, col4 = st.columns(4)
@@ -475,6 +486,60 @@ with tab2:
                         y = eval(f)
                 except:
                     st.error("関数を正しく入力できているか確認してください", icon="🚨")
+
+        with st.expander("近似直線・近似曲線を表示"):
+            setapprox = st.checkbox(":orange-background[有効化]", value=False, key="setapprox")
+            approxdata =  st.multiselect("近似するデータ列を選択", yaxis, default=None)
+            approxproperty = [[] for i in range(len(approxdata))]
+            for i, o in enumerate(approxdata):
+                if any(np.isnan(a.column[o])):
+                    st.write("第" + str(o) + "列に欠損値があるため近似直線/曲線を表示できません。")
+                else:
+                    st.write("第" + str(o) + "列")
+                    col1, col2, col3, col4 = st.columns(4)
+                    with col1:
+                        approx_dim = st.number_input("次数を入力", min_value=1, step=1, value=1, key=-1 * o -0.4)
+                        approxproperty[i].append(approx_dim)
+                    coefficient = np.polyfit(a.column[a.xaxis], a.column[o], approx_dim)
+                    approxproperty[i].append(coefficient)
+                    # 数式表示
+                    coefficient_str = []
+                    for q, j in enumerate(coefficient):
+                        if j >= 0 and q == 0:
+                            coefficient_str.append(str(round(j, 3)))
+                        elif j <= 0 and q == 0:
+                            coefficient_str.append(str(round(j, 3)))
+                        elif j >= 0 and q == 1:
+                            coefficient_str.append("+" + str(round(j, 3)) + "x")
+                        elif j < 0 and q == 1:
+                            coefficient_str.append("-" + str(round(-1 * j, 3)) + "x")
+                        elif j >= 0:
+                            coefficient_str.append("+" + str(round(j, 3)) + "x^" + str(q))
+                        elif j < 0:
+                            coefficient_str.append("-" + str(round(-1 * j, 3)) + "x^" + str(q))
+                    formula = ""
+                    for p in range(len(coefficient)):
+                        formula += coefficient_str[p]
+                    st.latex(formula)
+
+                    approx_x = np.linspace(a.column[a.xaxis][0], a.column[a.xaxis][-1], 100)
+                    approxproperty[i].append(approx_x)
+                    approxproperty[i].append(np.polyval(coefficient, approx_x))
+
+                    col1, col2, col3, col4 = st.columns(4)
+                    with col1:
+                        approx_linetype = st.selectbox("線の種類", (linetype_dict.keys()), key=-1 * o)
+                        approxproperty[i].append(approx_linetype)
+                    with col2:
+                        approx_color = st.selectbox("色", (colors), index=1, key=-1 * o - 0.1)
+                        approxproperty[i].append(approx_color)
+                    with col3:
+                        approx_width = st.number_input("線の幅", value = 3.0, min_value = 0.0, step = 0.5, key=-1 * o - 0.2)
+                        approxproperty[i].append(approx_width)
+                    with col4:
+                        approx_legend = st.text_input("凡例名", key=-1 * o - 0.3)
+                        approxproperty[i].append(approx_legend)
+
 
         with st.expander("フォントを指定する(軸ラベルのみ)"):
             setfont = st.checkbox(":orange-background[有効化]", value = False, disabled=True, key="font")
@@ -558,14 +623,20 @@ with tab2:
             setframewidh = st.checkbox("グラフの枠の幅を設定", value=False)
             framewidth = st.number_input("グラフの枠の幅", value=0.8, min_value=0.0, step=0.1, disabled=not setframewidh)
 
-    if setfunction or setfont or a.ticksetting or gridsettings or legendsetting or setframewidh:
+    if setfunction or setfont or a.ticksetting or gridsettings or legendsetting or setframewidh or setapprox:
         if uploaded_file:
             adv_fig = a.makefig()
+            plt.rcParams['axes.axisbelow'] = True
             # 設定適用
             if setfunction and f and f_max > f_min:
                 plt.plot(x, y, linetype_dict[f_linetype], c = f_color, linewidth = f_size, label = f_legend)
             if setframewidh:
                 plt.rcParams["axes.linewidth"] = framewidth
+
+            # 近似直線
+            if setapprox:
+                for g in approxproperty:
+                    plt.plot(g[2], g[3], linetype_dict[g[4]], c=g[5], linewidth=g[6], label=g[7])
 
             a.enable_ticks()
             a.tick_direction()
@@ -653,6 +724,9 @@ with tab3:
         - xを変数とした関数を入力する
         - 一般的な数式のように四則演算を入力可能 足し算:`+` 引き算:`-`  掛け算`*` 割り算:`/` 累乗:`**`
         - 三角関数や対数関数などはnumpyというライブラリの表記に従って入力する
+    - 近似直線・近似曲線を表示
+        - 近似直線・近似曲線と近似式を表示可能
+        - 近似するデータ列と近似の次数、プロットのオプションを選択
     - フォントの指定
         - サーバー上での動作では未対応
     - 目盛り線の設定
