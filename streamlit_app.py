@@ -140,10 +140,15 @@ class plot_main:
     
     def valueplot2(self):
         for o in self.property:
+            remove_nan = []
             if any(np.isnan(self.column[o[1]])) or any(np.isnan(self.column[o[0]])):
-                st.write("**データ系列" + str(o[-1]) + "に欠損値があるため折れ線を表示できません。**")
+                if len(self.column[o[0]]) == len(self.column[o[1]]):
+                    remove_nan.append([d for d in self.column[o[0]] if not np.isnan(d)])
+                    remove_nan.append([d for d in self.column[o[1]] if not np.isnan(d)])
+                    plt.plot(self.column[o[0]], self.column[o[1]], o[2], markersize=o[3], linewidth=o[4], c=o[5], label=o[6])
                 plt.scatter(self.column[o[0]], self.column[o[1]], marker=o[2][0], s=o[3], c=o[5], label=o[6])
             else:
+                st.write("**データ系列" + str(o[-1]) + "に欠損値があるため折れ線を表示できません。**")
                 plt.plot(self.column[o[0]], self.column[o[1]], o[2], markersize=o[3], linewidth=o[4], c=o[5], label=o[6])
 
     # 凡例表示
@@ -363,7 +368,7 @@ with st.sidebar:
                 property_[y].append(ya)
             if xa == ya:
                 st.error("X軸とY軸で同じ列を選択しています", icon="🚨")
-            plottyp = st.radio("プロットの種類", ["マーカー", "折れ線", "両方"], horizontal=True, key=y + 0.05, disabled=any(np.isnan(a.column[ya])) or any(np.isnan(a.column[xa])))
+            plottyp = st.radio("プロットの種類", ["マーカー", "折れ線", "両方"], horizontal=True, key=y + 0.05, disabled=(any(np.isnan(a.column[ya])) or any(np.isnan(a.column[xa]))) and not len(a.column[xa]) == len(a.column[ya]))
             col1, col2, col3= st.columns(3)
             with col1:
                 marke = st.selectbox("マーカーの形", (markers_dict.keys()), key=y + 0.03)
