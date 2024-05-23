@@ -129,26 +129,16 @@ class plot_main:
             plt.rcParams["ytick.major.width"] = 1.0
             plt.rcParams["xtick.minor.width"] = 0.6
             plt.rcParams["ytick.minor.width"] = 0.6
-            
-    def valueplot(self):
-        for o in self.property:
-            if any(np.isnan(self.column[o[0]])):
-                    st.write("第" + str(o[0]) + "列に欠損値があるため折れ線を表示できません。")
-                    plt.scatter(self.column[self.xaxis], self.column[o[0]], marker=o[1][0], s=o[2], c=o[4], label=o[5])
-            else:
-                plt.plot(self.column[self.xaxis], self.column[o[0]], o[1], markersize=o[2], linewidth=o[3], c=o[4], label=o[5])
     
     def valueplot2(self):
         for o in self.property:
-            remove_nan = []
             if any(np.isnan(self.column[o[1]])) or any(np.isnan(self.column[o[0]])):
-                if len(self.column[o[0]]) == len(self.column[o[1]]):
-                    remove_nan.append([d for d in self.column[o[0]] if not np.isnan(d)])
-                    remove_nan.append([d for d in self.column[o[1]] if not np.isnan(d)])
-                    plt.plot(self.column[o[0]], self.column[o[1]], o[2], markersize=o[3], linewidth=o[4], c=o[5], label=o[6])
-                plt.scatter(self.column[o[0]], self.column[o[1]], marker=o[2][0], s=o[3], c=o[5], label=o[6])
+                if self.comparison_element(self.column[o[0]], self.column[o[1]]):
+                    plt.plot(a.removeNaN(self.column[o[0]]), a.removeNaN(self.column[o[1]]), o[2], markersize=o[3], linewidth=o[4], c=o[5], label=o[6])
+                else:
+                    st.write("**データ系列" + str(o[-1]) + "に欠損値があるため折れ線を表示できません。**")
+                    plt.scatter(self.column[o[0]], self.column[o[1]], marker=o[2][0], s=o[3], c=o[5], label=o[6])
             else:
-                st.write("**データ系列" + str(o[-1]) + "に欠損値があるため折れ線を表示できません。**")
                 plt.plot(self.column[o[0]], self.column[o[1]], o[2], markersize=o[3], linewidth=o[4], c=o[5], label=o[6])
 
     # 凡例表示
@@ -203,6 +193,17 @@ class plot_main:
     # Y軸ラベル
     def add_ylabel(self):
         plt.ylabel(self.ylabel, fontproperties=self.fp)
+
+    # NaNの除去
+    def removeNaN(self, list):
+        return [i for i in list if not np.isnan(i)]
+    
+    # NaNを除去したリストの要素数の比較
+    def comparison_element(self, list1, list2):
+        if len(self.removeNaN(list1)) == len(self.removeNaN(list2)):
+            return True
+        else:
+            return False
 
     # プロット(完全)
     def plot_fig(self) -> matplotlib.figure.Figure:
@@ -368,7 +369,7 @@ with st.sidebar:
                 property_[y].append(ya)
             if xa == ya:
                 st.error("X軸とY軸で同じ列を選択しています", icon="🚨")
-            plottyp = st.radio("プロットの種類", ["マーカー", "折れ線", "両方"], horizontal=True, key=y + 0.05, disabled=(any(np.isnan(a.column[ya])) or any(np.isnan(a.column[xa]))) and not len(a.column[xa]) == len(a.column[ya]))
+            plottyp = st.radio("プロットの種類", ["マーカー", "折れ線", "両方"], horizontal=True, key=y + 0.05, disabled=(any(np.isnan(a.column[ya])) or any(np.isnan(a.column[xa]))) and not a.comparison_element(a.column[xa], a.column[ya]))
             col1, col2, col3= st.columns(3)
             with col1:
                 marke = st.selectbox("マーカーの形", (markers_dict.keys()), key=y + 0.03)
@@ -510,7 +511,7 @@ with tab2:
             approxdata =  st.multiselect("近似するデータ系列を選択", yaxis, default=None)
             approxproperty = [[] for i in range(len(approxdata))]
             for i, o in enumerate(approxdata):
-                if any(np.isnan(a.column[a.property[o-1][1]])) or any(np.isnan(a.column[a.property[o-1][0]])):
+                if not a.comparison_element((a.column[a.property[o-1][1]]), a.column[a.property[o-1][0]]):
                     st.write("データ系列" + str(o) + "に欠損値があるため近似直線/曲線を表示できません。")
                     approxproperty[i].append(False)
                 else:
@@ -519,7 +520,7 @@ with tab2:
                     with col1:
                         approx_dim = st.number_input("次数を入力", min_value=1, step=1, value=1, key=-1 * o -0.4)
                         approxproperty[i].append(approx_dim)
-                    coefficient = np.polyfit(a.column[a.property[o-1][0]], a.column[a.property[o-1][1]], approx_dim)
+                    coefficient = np.polyfit(a.removeNaN(a.column[a.property[o-1][0]]), a.removeNaN(a.column[a.property[o-1][1]]), approx_dim)
                     approxproperty[i].append(coefficient)
                     # 数式表示
                     coefficient_str = []
@@ -544,7 +545,7 @@ with tab2:
                     formula += "$"
                     st.write("近似式: " + formula)
 
-                    approx_x = np.linspace(a.column[a.property[o-1][0]][0], a.column[a.property[o-1][0]][-1], 100)
+                    approx_x = np.linspace(a.removeNaN(a.column[a.property[o-1][0]])[0], a.removeNaN(a.column[a.property[o-1][0]])[-1], 100)
                     approxproperty[i].append(approx_x)
                     approxproperty[i].append(np.polyval(coefficient, approx_x))
 
@@ -733,7 +734,7 @@ with tab3:
     4. プロットするデータを選択する
         - データ系列を追加してX、Yとするデータの列を選択する
         - データ系列を追加するとそのデータ系列の表示設定が表示されるので変更する
-        - 折れ線グラフも追加可能 ただしデータに欠損値が存在する場合は未対応
+        - XとYの列の要素数が等しくない場合折れ線グラフは表示不可
     5. 保存する画像の設定を変更する
         - dpi=1インチあたりのドット数
         - ベクター形式のpdf、svgで保存すると拡大しても粗くならないが、プロットする点が極端に多い場合保存した画像の読み込みなどが重くなることがあるので注意
@@ -750,6 +751,7 @@ with tab3:
     - 近似直線・近似曲線を表示
         - 近似直線・近似曲線と近似式を表示可能
         - 近似するデータ系列と近似の次数、プロットのオプションを選択
+        - XとYの列の要素数が等しくない場合表示不可
     - フォントの指定
         - サーバー上での動作では未対応
     - 目盛り線の設定
