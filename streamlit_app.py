@@ -138,6 +138,14 @@ class plot_main:
             else:
                 plt.plot(self.column[self.xaxis], self.column[o[0]], o[1], markersize=o[2], linewidth=o[3], c=o[4], label=o[5])
     
+    def valueplot2(self):
+        for o in self.property:
+            if any(np.isnan(self.column[o[1]])) or any(np.isnan(self.column[o[0]])):
+                st.write("**データ系列" + str(o[-1]) + "に欠損値があるため折れ線を表示できません。**")
+                plt.scatter(self.column[o[0]], self.column[o[1]], marker=o[2][0], s=o[3], c=o[5], label=o[6])
+            else:
+                plt.plot(self.column[o[0]], self.column[o[1]], o[2], markersize=o[3], linewidth=o[4], c=o[5], label=o[6])
+
     # 凡例表示
     def display_legend(self):
         if self.legends == True and self.ja_legends == False:
@@ -340,47 +348,47 @@ with st.sidebar:
                     a.column[i].append(data_set[j][i])
         except:
             st.error("正しいファイルを選択できているか確認してください", icon="🚨")
-        # st.write(data_set[0])
-        # st.write(type(data_set))
-        st.header("プロットするデータの選択")
-        col1, col2 = st.columns(2)
-        with col1:
-            a.xaxis = st.selectbox("Xとする列", columns)
-        with col2:
-            yaxis = st.multiselect("Yとする列（複数選択可）", columns, default=1)
-        if a.xaxis in yaxis:
-            st.error("X軸とY軸で同じ列を選択しています", icon="🚨")
-        # プロットオプション
-        #if yaxis != None:
-        if a.xaxis not in yaxis:
-            if yaxis:
-                st.write("マーカーのオプション")
-            a.property = [[] for i in range(len(yaxis))]
-            for i, ycolumn in enumerate(yaxis):
-                a.property[i].append(ycolumn)
-                st.write("第" + str(ycolumn) + "列")
-                plottype = st.radio("プロットの種類", ["マーカー", "折れ線", "両方"], horizontal=True, key=i + 0.5, disabled=any(np.isnan(a.column[ycolumn])))
-                col1, col2, col3= st.columns(3)
-                with col1:
-                    marker = st.selectbox("マーカーの形", (markers_dict.keys()), key = i + 0.1)
-                    linetype = st.selectbox("線の種類", (linetype_dict.keys()), key=i + 0.6)
-                    if plottype == "マーカー":
-                        a.property[i].append(markers_dict[marker])
-                    elif plottype == "折れ線":
-                        a.property[i].append(linetype_dict[linetype])
-                    elif plottype == "両方":
-                        a.property[i].append(markers_dict[marker] + linetype_dict[linetype])
-                with col2:
-                    markersize = st.number_input("マーカーの大きさ", value = 4, min_value = 0, step = 1, key = i + 0.2)
-                    a.property[i].append(markersize)
-                    linewidth = st.number_input("線の幅", value = 3, min_value = 0, step = 1, key = i + 0.7)
-                    a.property[i].append(linewidth)
-                with col3:
-                    color = st.selectbox("色", (colors), key = i, index=1)
-                    a.property[i].append(color)
-                    legend = st.text_input("凡例名", key = i + 0.3)
-                    a.property[i].append(legend)
-            #st.write(property)
+
+        st.header("プロットするデータ系列")
+        number_of_data = st.number_input("プロットするデータ系列の数", min_value=0, step=1, value=1)
+        property_ = [[] for i in range(number_of_data)]
+        for y in range(number_of_data):
+            st.write("**データ系列" + str(y + 1) + "**")
+            col1, col2 = st.columns(2)
+            with col1:
+                xa = st.selectbox("Xとする列", columns, index=0, key=y + 0.01)
+                property_[y].append(xa)
+            with col2:
+                ya = st.selectbox("Yとする列", columns, index=1, key=y + 0.02)
+                property_[y].append(ya)
+            if xa == ya:
+                st.error("X軸とY軸で同じ列を選択しています", icon="🚨")
+            plottyp = st.radio("プロットの種類", ["マーカー", "折れ線", "両方"], horizontal=True, key=y + 0.05, disabled=any(np.isnan(a.column[ya])) or any(np.isnan(a.column[xa])))
+            col1, col2, col3= st.columns(3)
+            with col1:
+                marke = st.selectbox("マーカーの形", (markers_dict.keys()), key=y + 0.03)
+                linetyp = st.selectbox("線の種類", (linetype_dict.keys()), key=y + 0.04)
+                if plottyp == "マーカー":
+                    property_[y].append(markers_dict[marke])
+                elif plottyp == "折れ線":
+                    property_[y].append(linetype_dict[linetyp])
+                elif plottyp == "両方":
+                    property_[y].append(markers_dict[marke] + linetype_dict[linetyp])
+            with col2:
+                markersiz = st.number_input("マーカーの大きさ", value = 4, min_value = 0, step = 1, key=y + 0.06)
+                property_[y].append(markersiz)
+                linewidt = st.number_input("線の幅", value = 3, min_value = 0, step = 1, key=y + 0.07)
+                property_[y].append(linewidt)
+            with col3:
+                colo = st.selectbox("色", (colors), key=y + 0.08, index=1)
+                property_[y].append(colo)
+                legen = st.text_input("凡例名", key=y + 0.09)
+                property_[y].append(legen)
+            property_[y].append(y + 1)
+            '''
+            ---
+            '''
+        a.property = property_
         st.write("グラフのサイズ")
         col1, col2, col3= st.columns(3)
         with col1:
@@ -410,7 +418,7 @@ with tab1:
         a.enable_ticks()
         a.tick_direction()
         a.custom_ticks()
-        a.valueplot()
+        a.valueplot2()
         a.display_legend()
         a.add_minorticks()
         a.display_grid()
@@ -432,10 +440,13 @@ with tab1:
                 data = file,
                 file_name = a.title + a.expantion,
                 )
-    st.write('''
-            **更新履歴**
-            - 近似直線・近似曲線の表示機能を追加(2024/05/22)
-            - プロットがグリッドより手前に描画されるように変更(2024/05/22)''')
+        '''
+        **更新履歴**
+        - Xの値として複数の列を指定できるように変更(2024/05/23)
+        - 近似式の係数の順番が逆になっていたのを修正(2024/05/23)
+        - 近似直線・近似曲線の表示機能を追加(2024/05/22)
+        - プロットがグリッドより手前に描画されるように変更(2024/05/22)
+        '''
 
 
 with tab2:
@@ -450,12 +461,12 @@ with tab2:
             f_min = 0
             f_max = 1
             slice = 1
-            if a.xaxis:
+            if a.property[0]:
                 col1, col2, col3 = st.columns(3)
                 with col1:
-                    f_min = st.number_input("最小値", value=np.min(a.column[a.xaxis]), step=0.01)
+                    f_min = st.number_input("最小値", value=np.min(a.column[a.property[0][0]]), step=0.01)
                 with col2:
-                    f_max = st.number_input("最大値", value=np.max(a.column[a.xaxis]), step=0.01)
+                    f_max = st.number_input("最大値", value=np.max(a.column[a.property[0][0]]), step=0.01)
                 with col3:
                     slice = st.number_input("分割数(滑らかさ)", value = 100, min_value = 0, step = 1)
 
@@ -489,40 +500,45 @@ with tab2:
 
         with st.expander("近似直線・近似曲線を表示"):
             setapprox = st.checkbox(":orange-background[有効化]", value=False, key="setapprox")
-            approxdata =  st.multiselect("近似するデータ列を選択", yaxis, default=None)
+            yaxis = [r + 1 for r in range(len(a.property))]
+            approxdata =  st.multiselect("近似するデータ系列を選択", yaxis, default=None)
             approxproperty = [[] for i in range(len(approxdata))]
             for i, o in enumerate(approxdata):
-                if any(np.isnan(a.column[o])):
-                    st.write("第" + str(o) + "列に欠損値があるため近似直線/曲線を表示できません。")
+                if any(np.isnan(a.column[a.property[o-1][1]])) or any(np.isnan(a.column[a.property[o-1][0]])):
+                    st.write("データ系列" + str(o) + "に欠損値があるため近似直線/曲線を表示できません。")
+                    approxproperty[i].append(False)
                 else:
-                    st.write("第" + str(o) + "列")
+                    st.write("データ系列" + str(o))
                     col1, col2, col3, col4 = st.columns(4)
                     with col1:
                         approx_dim = st.number_input("次数を入力", min_value=1, step=1, value=1, key=-1 * o -0.4)
                         approxproperty[i].append(approx_dim)
-                    coefficient = np.polyfit(a.column[a.xaxis], a.column[o], approx_dim)
+                    coefficient = np.polyfit(a.column[a.property[o-1][0]], a.column[a.property[o-1][1]], approx_dim)
                     approxproperty[i].append(coefficient)
                     # 数式表示
                     coefficient_str = []
                     for q, j in enumerate(coefficient):
-                        if j >= 0 and q == 0:
-                            coefficient_str.append(str(round(j, 3)))
-                        elif j <= 0 and q == 0:
-                            coefficient_str.append(str(round(j, 3)))
-                        elif j >= 0 and q == 1:
+                        if j > 0 and q == len(coefficient) - 1:
+                            coefficient_str.append("+" + str(round(j, 3)))
+                        elif j <= 0 and q == len(coefficient) - 1:
+                            coefficient_str.append("-" + str(round(j, 3)))
+                        elif j > 0 and q == len(coefficient) - 2:
                             coefficient_str.append("+" + str(round(j, 3)) + "x")
-                        elif j < 0 and q == 1:
+                        elif j <= 0 and q == len(coefficient) - 2:
                             coefficient_str.append("-" + str(round(-1 * j, 3)) + "x")
+                        elif j >= 0 and q == 0:
+                            coefficient_str.append(str(round(j, 3)) + "x^" + str(len(coefficient) - 1))
                         elif j >= 0:
-                            coefficient_str.append("+" + str(round(j, 3)) + "x^" + str(q))
+                            coefficient_str.append("+" + str(round(j, 3)) + "x^" + str(len(coefficient) - q - 1))
                         elif j < 0:
-                            coefficient_str.append("-" + str(round(-1 * j, 3)) + "x^" + str(q))
-                    formula = ""
+                            coefficient_str.append("-" + str(round(-1 * j, 3)) + "x^" + str(len(coefficient)- q - 1))
+                    formula = "$"
                     for p in range(len(coefficient)):
                         formula += coefficient_str[p]
-                    st.latex(formula)
+                    formula += "$"
+                    st.write("近似式: " + formula)
 
-                    approx_x = np.linspace(a.column[a.xaxis][0], a.column[a.xaxis][-1], 100)
+                    approx_x = np.linspace(a.column[a.property[o-1][0]][0], a.column[a.property[o-1][0]][-1], 100)
                     approxproperty[i].append(approx_x)
                     approxproperty[i].append(np.polyval(coefficient, approx_x))
 
@@ -636,12 +652,13 @@ with tab2:
             # 近似直線
             if setapprox:
                 for g in approxproperty:
-                    plt.plot(g[2], g[3], linetype_dict[g[4]], c=g[5], linewidth=g[6], label=g[7])
+                    if g[0]:
+                        plt.plot(g[2], g[3], linetype_dict[g[4]], c=g[5], linewidth=g[6], label=g[7])
 
             a.enable_ticks()
             a.tick_direction()
             a.custom_ticks()
-            a.valueplot()
+            a.valueplot2()
             if legendsetting:
                 if "外側" in legendloc:
                     plt.legend(fontsize=a.fontsize, frameon=legend_frame, fancybox=legend_corner, facecolor=legend_color, framealpha=legend_transparency, edgecolor=legend_framecolor, ncol=legend_cols, labelcolor=legend_lettercolor, loc=legendloc_dict[legendloc][0], bbox_to_anchor=(legendloc_dict[legendloc][1], legendloc_dict[legendloc][2]))
@@ -708,8 +725,8 @@ with tab3:
         - 軸のラベルを入力する $で囲むことでTeX記法の数式を使用可能
         - :orange[日本語の凡例名表示は未対応]
     4. プロットするデータを選択する
-        - X、Yとするデータの列を選択する Yとするデータの列は複数選択可能
-        - 列を選択するとそのデータの表示設定が表示されるので変更する
+        - データ系列を追加してX、Yとするデータの列を選択する
+        - データ系列を追加するとそのデータ系列の表示設定が表示されるので変更する
         - 折れ線グラフも追加可能 ただしデータに欠損値が存在する場合は未対応
     5. 保存する画像の設定を変更する
         - dpi=1インチあたりのドット数
@@ -726,7 +743,7 @@ with tab3:
         - 三角関数や対数関数などはnumpyというライブラリの表記に従って入力する
     - 近似直線・近似曲線を表示
         - 近似直線・近似曲線と近似式を表示可能
-        - 近似するデータ列と近似の次数、プロットのオプションを選択
+        - 近似するデータ系列と近似の次数、プロットのオプションを選択
     - フォントの指定
         - サーバー上での動作では未対応
     - 目盛り線の設定
