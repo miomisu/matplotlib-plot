@@ -440,13 +440,13 @@ with tab1:
                 data = file,
                 file_name = a.title + a.expantion,
                 )
-        '''
-        **更新履歴**
-        - Xの値として複数の列を指定できるように変更(2024/05/23)
-        - 近似式の係数の順番が逆になっていたのを修正(2024/05/23)
-        - 近似直線・近似曲線の表示機能を追加(2024/05/22)
-        - プロットがグリッドより手前に描画されるように変更(2024/05/22)
-        '''
+    '''
+    **更新履歴**
+    - Xの値として複数の列を指定できるように変更(2024/05/23)
+    - 近似式の係数の順番が逆になっていたのを修正(2024/05/23)
+    - 近似直線・近似曲線の表示機能を追加(2024/05/22)
+    - プロットがグリッドより手前に描画されるように変更(2024/05/22)
+    '''
 
 
 with tab2:
@@ -461,7 +461,7 @@ with tab2:
             f_min = 0
             f_max = 1
             slice = 1
-            if a.property[0]:
+            if uploaded_file:
                 col1, col2, col3 = st.columns(3)
                 with col1:
                     f_min = st.number_input("最小値", value=np.min(a.column[a.property[0][0]]), step=0.01)
@@ -500,7 +500,8 @@ with tab2:
 
         with st.expander("近似直線・近似曲線を表示"):
             setapprox = st.checkbox(":orange-background[有効化]", value=False, key="setapprox")
-            yaxis = [r + 1 for r in range(len(a.property))]
+            if uploaded_file:
+                yaxis = [r + 1 for r in range(len(a.property))]
             approxdata =  st.multiselect("近似するデータ系列を選択", yaxis, default=None)
             approxproperty = [[] for i in range(len(approxdata))]
             for i, o in enumerate(approxdata):
