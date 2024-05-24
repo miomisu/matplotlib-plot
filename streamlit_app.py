@@ -144,9 +144,9 @@ class plot_main:
     # 凡例表示
     def display_legend(self):
         if self.legends == True and self.ja_legends == False:
-            plt.legend(fontsize = self.fontsize)
+            plt.legend(fontsize = self.fontsize[2])
         if self.legends == True and self.ja_legends == True:
-            plt.legend(fontsize = self.fontsize, prop={"family":"Meiryo"})
+            plt.legend(fontsize = self.fontsize[2], prop={"family":"Meiryo"})
     
     # 補助目盛り追加
     def add_minorticks(self):
@@ -179,13 +179,13 @@ class plot_main:
     # 軸目盛り
     def set_ticks(self):
         if self.xscale:
-            plt.xticks(self.xtick_list_num, self.xtick_list, fontsize = self.fontsize)
+            plt.xticks(self.xtick_list_num, self.xtick_list, fontsize = self.fontsize[1])
         else:
-            plt.xticks(fontsize = self.fontsize)
+            plt.xticks(fontsize = self.fontsize[1])
         if self.yscale:
-            plt.yticks(self.ytick_list_num, self.ytick_list, fontsize = self.fontsize)
+            plt.yticks(self.ytick_list_num, self.ytick_list, fontsize = self.fontsize[1])
         else:
-            plt.yticks(fontsize = self.fontsize)
+            plt.yticks(fontsize = self.fontsize[1])
     
     # X軸ラベル
     def add_xlabel(self):
@@ -212,14 +212,14 @@ class plot_main:
         self.tick_direction(self.xtickdir, self.ytickdir)
         self.custom_ticks(self.ticksetting, self.xmajor_size, self.ymajor_size, self.xminor_size, self.yminor_size, self.xmajor_width, self.ymajor_width, self.xminor_width, self.yminor_width)
         self.valueplot(self.property, self.column)
-        self.display_legend(self.legends, self.ja_legends, self.fontsize)
+        self.display_legend(self.legends, self.ja_legends, self.fontsize[2])
         self.add_minorticks(self.minorticks)
         self.display_grid(self.grid)
         self.enable_xlog(self.xlog)
         self.enable_ylog(self.ylog)
         self.xrange(self.xmin, self.xmax)
         self.yrange(self.ymin, self.ymax)
-        self.set_ticks(self.xscale, self.xtick_list_num, self.xtick_list, self.yscale, self.ytick_list_num, self.ytick_list, self.fontsize)
+        self.set_ticks(self.xscale, self.xtick_list_num, self.xtick_list, self.yscale, self.ytick_list_num, self.ytick_list, self.fontsize[1])
         self.add_xlabel(self.xlabel, self.fp)
         self.add_ylabel(self.ylabel, self.fp)
         return fig
@@ -237,7 +237,7 @@ class plot_main:
         self.enable_ylog(self.ylog)
         self.xrange(self.xmin, self.xmax)
         self.yrange(self.ymin, self.ymax)
-        self.set_ticks(self.xscale, self.xtick_list_num, self.xtick_list, self.yscale, self.ytick_list_num, self.ytick_list, self.fontsize)
+        self.set_ticks(self.xscale, self.xtick_list_num, self.xtick_list, self.yscale, self.ytick_list_num, self.ytick_list, self.fontsize[1])
         self.add_xlabel(self.xlabel, self.fp)
         self.add_ylabel(self.ylabel, self.fp)
         return fig
@@ -334,12 +334,19 @@ with st.sidebar:
         a.ja_legends = False
         if a.legends:
             a.ja_legends = st.checkbox("凡例名に日本語を用いる", value = False, disabled=True)
-        # フォント指定
-        a.fontsize = st.number_input("フォントサイズ", step=1, value=12)
-        a.fp = FontProperties(fname=r"NotoSansJP-Regular.ttf", size=a.fontsize)
     with col2:
         a.ylog = st.checkbox("Y軸を対数軸にする", value=False)
         a.grid = st.checkbox("グリッド", value="True")
+    # フォント指定
+    a.fontsize = [None for i in range(3)]
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        a.fontsize[0] = st.number_input("ラベルのフォントサイズ", min_value=0, step=1, value=12)
+        a.fp = FontProperties(fname=r"NotoSansJP-Regular.ttf", size=a.fontsize[0])
+    with col2:
+        a.fontsize[1] = st.number_input("目盛りのフォントサイズ", min_value=0, step=1, value=12)
+    with col3:
+        a.fontsize[2] = st.number_input("凡例のフォントサイズ", min_value=0, step=1, value=12)
     yaxis = []
     if uploaded_file:
         #data_set = get_data(uploaded_file)
@@ -448,6 +455,7 @@ with tab1:
                 )
     '''
     **更新履歴**
+    - フォントサイズをラベル、目盛り、凡例で個別に指定できるように変更(2024/05/24)
     - Xの値として複数の列を指定できるように変更(2024/05/23)
     - 近似式の係数の順番が逆になっていたのを修正(2024/05/23)
     - 近似直線・近似曲線の表示機能を追加(2024/05/22)
@@ -568,7 +576,7 @@ with tab2:
             setfont = st.checkbox(":orange-background[有効化]", value = False, disabled=True, key="font")
             fontpath = st.text_input("フォントファイルのパスを指定", placeholder = "例) C:\Windows\Fonts\HGRPP1.ttc")
             if fontpath:
-                fp = FontProperties(fname=fontpath, size=a.fontsize)
+                fp = FontProperties(fname=fontpath, size=a.fontsize[0])
             st.caption("システムフォントの場所 C:\\Windows\\Fonts ユーザーフォントの場所 C:\\Users\\ユーザー名\\AppData\\Local\\Microsoft\\Windows\\Fonts")
         
         with st.expander("目盛り線の設定"):
@@ -668,9 +676,9 @@ with tab2:
             a.valueplot2()
             if legendsetting:
                 if "外側" in legendloc:
-                    plt.legend(fontsize=a.fontsize, frameon=legend_frame, fancybox=legend_corner, facecolor=legend_color, framealpha=legend_transparency, edgecolor=legend_framecolor, ncol=legend_cols, labelcolor=legend_lettercolor, loc=legendloc_dict[legendloc][0], bbox_to_anchor=(legendloc_dict[legendloc][1], legendloc_dict[legendloc][2]))
+                    plt.legend(fontsize=a.fontsize[2], frameon=legend_frame, fancybox=legend_corner, facecolor=legend_color, framealpha=legend_transparency, edgecolor=legend_framecolor, ncol=legend_cols, labelcolor=legend_lettercolor, loc=legendloc_dict[legendloc][0], bbox_to_anchor=(legendloc_dict[legendloc][1], legendloc_dict[legendloc][2]))
                 else:
-                    plt.legend(fontsize=a.fontsize, frameon=legend_frame, fancybox=legend_corner, facecolor=legend_color, framealpha=legend_transparency, edgecolor=legend_framecolor, ncol=legend_cols, labelcolor=legend_lettercolor, loc=legendloc_dict[legendloc])
+                    plt.legend(fontsize=a.fontsize[2], frameon=legend_frame, fancybox=legend_corner, facecolor=legend_color, framealpha=legend_transparency, edgecolor=legend_framecolor, ncol=legend_cols, labelcolor=legend_lettercolor, loc=legendloc_dict[legendloc])
             else:
                 a.display_legend()
             a.add_minorticks()
