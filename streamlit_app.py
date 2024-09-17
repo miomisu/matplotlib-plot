@@ -420,6 +420,7 @@ with st.sidebar:
 
 with tab1:
     st.write("←サイドバーを開いて設定を表示(サイズ変更可能)")
+    st.write(print(plt.style.available))
     if uploaded_file:
         # プロット
         # fig = a.plot_fig() <-エラーが出る
