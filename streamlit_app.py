@@ -444,6 +444,7 @@ with tab1:
         a.set_ticks()
         a.add_xlabel()
         a.add_ylabel()
+        plt.style.use("ggplot")
         # 表示
         st.pyplot(fig)
         # 保存
