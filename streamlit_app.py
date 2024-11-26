@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import streamlit as st
 from matplotlib.font_manager import FontProperties
 import matplotlib.font_manager as fm
-fm.fontManager.addfont(r"MPLUSRounded1c-Regular.ttf")
 
 st.set_page_config(
     page_title="matplotlib GUI",
@@ -38,7 +37,7 @@ def get_data2(file, dlmt, sh) -> np.ndarray:
 
 # クラス作成
 class plot_main:
-    def __init__(self, dpi, width, height, toptick, bottomtick, lefttick, righttick, xtickdir, ytickdir, property, legends, ja_legends, minorticks, grid, xlog, ylog, xmin, xmax, ymin, ymax, xscale, yscale, fontsize, xlabel, ylabel, fp, column, xaxis, xtick_list_num, xtick_list, ytick_list_num, ytick_list, ticksetting, xmajor_size, ymajor_size, xminor_size, yminor_size, xmajor_width, ymajor_width, xminor_width, yminor_width, title, expantion):
+    def __init__(self, dpi, width, height, toptick, bottomtick, lefttick, righttick, xtickdir, ytickdir, property, legends, ja_legends, minorticks, grid, xlog, ylog, xmin, xmax, ymin, ymax, xscale, yscale, fontsize, fontfamily, xlabel, ylabel, fp, column, xaxis, xtick_list_num, xtick_list, ytick_list_num, ytick_list, ticksetting, xmajor_size, ymajor_size, xminor_size, yminor_size, xmajor_width, ymajor_width, xminor_width, yminor_width, title, expantion):
         self.dpi = dpi
         self.width = width
         self.height = height
@@ -62,6 +61,7 @@ class plot_main:
         self.xscale = xscale
         self.yscale = yscale
         self.fontsize = fontsize
+        self.fontfamily = fontfamily
         self.xlabel = xlabel
         self.ylabel = ylabel
         self.fp = fp
@@ -146,9 +146,9 @@ class plot_main:
     # 凡例表示
     def display_legend(self):
         if self.legends == True and self.ja_legends == False:
-            plt.legend(fontsize = self.fontsize[2])
+            plt.legend(fontsize = self.fontsize[2], prop={"family":a.fontfamily})
         if self.legends == True and self.ja_legends == True:
-            plt.legend(fontsize = self.fontsize[2], prop={"family":"Meiryo"})
+            plt.legend(fontsize = self.fontsize[2], prop={"family":a.fontfamily})
     
     # 補助目盛り追加
     def add_minorticks(self):
@@ -181,20 +181,20 @@ class plot_main:
     # 軸目盛り
     def set_ticks(self):
         if self.xscale:
-            plt.xticks(self.xtick_list_num, self.xtick_list, fontsize = self.fontsize[1])
+            plt.xticks(self.xtick_list_num, self.xtick_list, fontsize = self.fontsize[1], fontfamily = a.fontfamily)
         else:
-            plt.xticks(fontsize = self.fontsize[1])
+            plt.xticks(fontsize = self.fontsize[1], fontfamily = a.fontfamily)
         if self.yscale:
             plt.yticks(self.ytick_list_num, self.ytick_list, fontsize = self.fontsize[1])
         else:
-            plt.yticks(fontsize = self.fontsize[1])
+            plt.yticks(fontsize = self.fontsize[1], fontfamily = a.fontfamily)
     
     # X軸ラベル
     def add_xlabel(self):
-        plt.xlabel(self.xlabel, fontproperties = self.fp)
+        plt.xlabel(self.xlabel, fontfamily = a.fontfamily)
     # Y軸ラベル
     def add_ylabel(self):
-        plt.ylabel(self.ylabel, fontproperties=self.fp)
+        plt.ylabel(self.ylabel, fontfamily = a.fontfamily)
 
     # NaNの除去
     def removeNaN(self, list):
@@ -342,13 +342,20 @@ with st.sidebar:
     # フォント指定
     a.fontsize = [None for i in range(3)]
     col1, col2, col3 = st.columns(3)
+    fm.fontManager.addfont(r"HaranoAjiGothic-Regular.otf")
+    fm.fontManager.addfont(r"HaranoAjiMincho-Regular.otf")
     with col1:
         a.fontsize[0] = st.number_input("ラベルのフォントサイズ", min_value=0, step=1, value=12)
-        a.fp = FontProperties(fname=r"NotoSansJP-Regular.ttf", size=a.fontsize[0])
+        #a.fp = FontProperties(fname=r"NotoSansJP-Regular.ttf", size=a.fontsize[0])
     with col2:
         a.fontsize[1] = st.number_input("目盛りのフォントサイズ", min_value=0, step=1, value=12)
     with col3:
         a.fontsize[2] = st.number_input("凡例のフォントサイズ", min_value=0, step=1, value=12)
+    fontstyle = st.radio("フォントスタイル", ["明朝体", "ゴシック体"], horizontal=True)
+    if fontstyle == "明朝体":
+        a.fontfamily = "Harano Aji Mincho"
+    if fontstyle == "ゴシック体":
+        a.fontfamily = "Harano Aji Gothic"
     yaxis = []
     if uploaded_file:
         #data_set = get_data(uploaded_file)
@@ -446,7 +453,6 @@ with tab1:
         a.set_ticks()
         a.add_xlabel()
         a.add_ylabel()
-        #plt.style.use("ggplot")
         # 表示
         st.pyplot(fig)
         # 保存
