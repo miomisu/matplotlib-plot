@@ -250,7 +250,7 @@ markers_dict = {"●": "o", "■": "s", "▼": "v", "▲": "^","◆": "D", "✚"
 linetype_dict = {"実線":"-", "破線":"--", "点線":":", "一点鎖線":"-."}
 
 # オブジェクト作成
-param_list = [None for i in range(43)]
+param_list = [None for i in range(44)]
 a = plot_main(*param_list)
 
 with st.sidebar:
