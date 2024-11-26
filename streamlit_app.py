@@ -3,6 +3,8 @@ import matplotlib
 import matplotlib.pyplot as plt
 import streamlit as st
 from matplotlib.font_manager import FontProperties
+import matplotlib.font_manager as fm
+fm.fontManager.addfont(r"MPLUSRounded1c-Regular.ttf")
 
 st.set_page_config(
     page_title="matplotlib GUI",
