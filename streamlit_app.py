@@ -788,3 +788,6 @@ with tab4:
     '''
     
     '''
+    import matplotlib.font_manager as fm
+    font_list = sorted(fm.get_font_names())
+    st.write(font_list)
