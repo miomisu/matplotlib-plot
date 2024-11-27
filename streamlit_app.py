@@ -334,8 +334,6 @@ with st.sidebar:
         a.xlog = st.checkbox("X軸を対数軸にする", value=False)
         a.legends = st.checkbox("凡例表示", value=False)
         a.ja_legends = False
-        if a.legends:
-            a.ja_legends = st.checkbox("凡例名に日本語を用いる", value = False, disabled=True)
     with col2:
         a.ylog = st.checkbox("Y軸を対数軸にする", value=False)
         a.grid = st.checkbox("グリッド", value="True")
@@ -788,7 +786,7 @@ with tab3:
     - 右上の︙メニューのSettingsからダークモードに変更可能
     - 表示がおかしくなったりした場合は右上の︙メニューの「Rerun」をクリックすると直るかもしれません
 
-    このソフトは表示フォントに「原ノ味フォント」(https://github.com/trueroad/HaranoAjiFonts) を使用しています。  
+    このプログラムは「原ノ味フォント」(https://github.com/trueroad/HaranoAjiFonts) を使用しています。  
     Licensed under SIL Open Font License 1.1 (http://scripts.sil.org/OFL)
     '''
 
