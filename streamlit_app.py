@@ -37,7 +37,7 @@ def get_data2(file, dlmt, sh) -> np.ndarray:
 
 # クラス作成
 class plot_main:
-    def __init__(self, dpi, width, height, toptick, bottomtick, lefttick, righttick, xtickdir, ytickdir, property, legends, ja_legends, minorticks, grid, xlog, ylog, xmin, xmax, ymin, ymax, xscale, yscale, fontsize, fontfamily, xlabel, ylabel, fp, column, xaxis, xtick_list_num, xtick_list, ytick_list_num, ytick_list, ticksetting, xmajor_size, ymajor_size, xminor_size, yminor_size, xmajor_width, ymajor_width, xminor_width, yminor_width, title, expantion):
+    def __init__(self, dpi, width, height, toptick, bottomtick, lefttick, righttick, xtickdir, ytickdir, property, legends, minorticks, grid, xlog, ylog, xmin, xmax, ymin, ymax, xscale, yscale, fontsize, fontfamily, xlabel, ylabel, fp, column, xaxis, xtick_list_num, xtick_list, ytick_list_num, ytick_list, ticksetting, xmajor_size, ymajor_size, xminor_size, yminor_size, xmajor_width, ymajor_width, xminor_width, yminor_width, title, expantion):
         self.dpi = dpi
         self.width = width
         self.height = height
@@ -49,7 +49,6 @@ class plot_main:
         self.ytickdir = ytickdir
         self.property = property
         self.legends = legends
-        self.ja_legends = ja_legends
         self.minorticks = minorticks
         self.grid = grid
         self.xlog = xlog
@@ -248,7 +247,7 @@ markers_dict = {"●": "o", "■": "s", "▼": "v", "▲": "^","◆": "D", "✚"
 linetype_dict = {"実線":"-", "破線":"--", "点線":":", "一点鎖線":"-."}
 
 # オブジェクト作成
-param_list = [None for i in range(44)]
+param_list = [None for i in range(43)]
 a = plot_main(*param_list)
 
 with st.sidebar:
