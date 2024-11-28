@@ -37,7 +37,7 @@ def get_data2(file, dlmt, sh) -> np.ndarray:
 
 # クラス作成
 class plot_main:
-    def __init__(self, dpi, width, height, toptick, bottomtick, lefttick, righttick, xtickdir, ytickdir, property, legends, ja_legends, minorticks, grid, xlog, ylog, xmin, xmax, ymin, ymax, xscale, yscale, fontsize, fontfamily, xlabel, ylabel, fp, column, xaxis, xtick_list_num, xtick_list, ytick_list_num, ytick_list, ticksetting, xmajor_size, ymajor_size, xminor_size, yminor_size, xmajor_width, ymajor_width, xminor_width, yminor_width, title, expantion):
+    def __init__(self, dpi, width, height, toptick, bottomtick, lefttick, righttick, xtickdir, ytickdir, property, legends, minorticks, grid, xlog, ylog, xmin, xmax, ymin, ymax, xscale, yscale, fontsize, fontfamily, xlabel, ylabel, fp, column, xaxis, xtick_list_num, xtick_list, ytick_list_num, ytick_list, ticksetting, xmajor_size, ymajor_size, xminor_size, yminor_size, xmajor_width, ymajor_width, xminor_width, yminor_width, title, expantion):
         self.dpi = dpi
         self.width = width
         self.height = height
@@ -49,7 +49,6 @@ class plot_main:
         self.ytickdir = ytickdir
         self.property = property
         self.legends = legends
-        self.ja_legends = ja_legends
         self.minorticks = minorticks
         self.grid = grid
         self.xlog = xlog
@@ -145,10 +144,8 @@ class plot_main:
 
     # 凡例表示
     def display_legend(self):
-        if self.legends == True and self.ja_legends == False:
-            plt.legend(fontsize = self.fontsize[2], prop={"family":a.fontfamily})
-        if self.legends == True and self.ja_legends == True:
-            plt.legend(fontsize = self.fontsize[2], prop={"family":a.fontfamily})
+        if self.legends:
+            plt.legend(fontsize = self.fontsize[2], prop={"family":self.fontfamily, "size":self.fontsize[2]})
     
     # 補助目盛り追加
     def add_minorticks(self):
@@ -250,7 +247,7 @@ markers_dict = {"●": "o", "■": "s", "▼": "v", "▲": "^","◆": "D", "✚"
 linetype_dict = {"実線":"-", "破線":"--", "点線":":", "一点鎖線":"-."}
 
 # オブジェクト作成
-param_list = [None for i in range(44)]
+param_list = [None for i in range(43)]
 a = plot_main(*param_list)
 
 with st.sidebar:
@@ -687,9 +684,9 @@ with tab2:
             a.valueplot2()
             if legendsetting:
                 if "外側" in legendloc:
-                    plt.legend(fontsize=a.fontsize[2], prop={"family":a.fontfamily}, frameon=legend_frame, fancybox=legend_corner, facecolor=legend_color, framealpha=legend_transparency, edgecolor=legend_framecolor, ncol=legend_cols, labelcolor=legend_lettercolor, loc=legendloc_dict[legendloc][0], bbox_to_anchor=(legendloc_dict[legendloc][1], legendloc_dict[legendloc][2]))
+                    plt.legend(fontsize=a.fontsize[2], prop={"family":a.fontfamily, "size":a.fontsize[2]}, frameon=legend_frame, fancybox=legend_corner, facecolor=legend_color, framealpha=legend_transparency, edgecolor=legend_framecolor, ncol=legend_cols, labelcolor=legend_lettercolor, loc=legendloc_dict[legendloc][0], bbox_to_anchor=(legendloc_dict[legendloc][1], legendloc_dict[legendloc][2]))
                 else:
-                    plt.legend(fontsize=a.fontsize[2], prop={"family":a.fontfamily}, frameon=legend_frame, fancybox=legend_corner, facecolor=legend_color, framealpha=legend_transparency, edgecolor=legend_framecolor, ncol=legend_cols, labelcolor=legend_lettercolor, loc=legendloc_dict[legendloc])
+                    plt.legend(fontsize=a.fontsize[2], prop={"family":a.fontfamily, "size":a.fontsize[2]}, frameon=legend_frame, fancybox=legend_corner, facecolor=legend_color, framealpha=legend_transparency, edgecolor=legend_framecolor, ncol=legend_cols, labelcolor=legend_lettercolor, loc=legendloc_dict[legendloc])
             else:
                 a.display_legend()
             a.add_minorticks()
