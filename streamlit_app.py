@@ -145,10 +145,8 @@ class plot_main:
 
     # 凡例表示
     def display_legend(self):
-        if self.legends == True and self.ja_legends == False:
-            plt.legend(fontsize = self.fontsize[2], prop={"family":a.fontfamily})
-        if self.legends == True and self.ja_legends == True:
-            plt.legend(fontsize = self.fontsize[2], prop={"family":a.fontfamily})
+        if self.legends:
+            plt.legend(fontsize = self.fontsize[2], prop={"family":self.fontfamily, "size":self.fontsize[2]})
     
     # 補助目盛り追加
     def add_minorticks(self):
@@ -687,9 +685,9 @@ with tab2:
             a.valueplot2()
             if legendsetting:
                 if "外側" in legendloc:
-                    plt.legend(fontsize=a.fontsize[2], frameon=legend_frame, fancybox=legend_corner, facecolor=legend_color, framealpha=legend_transparency, edgecolor=legend_framecolor, ncol=legend_cols, labelcolor=legend_lettercolor, loc=legendloc_dict[legendloc][0], bbox_to_anchor=(legendloc_dict[legendloc][1], legendloc_dict[legendloc][2]))
+                    plt.legend(fontsize=a.fontsize[2], prop={"family":a.fontfamily, "size":a.fontsize[2]}, frameon=legend_frame, fancybox=legend_corner, facecolor=legend_color, framealpha=legend_transparency, edgecolor=legend_framecolor, ncol=legend_cols, labelcolor=legend_lettercolor, loc=legendloc_dict[legendloc][0], bbox_to_anchor=(legendloc_dict[legendloc][1], legendloc_dict[legendloc][2]))
                 else:
-                    plt.legend(fontsize=a.fontsize[2], frameon=legend_frame, fancybox=legend_corner, facecolor=legend_color, framealpha=legend_transparency, edgecolor=legend_framecolor, ncol=legend_cols, labelcolor=legend_lettercolor, loc=legendloc_dict[legendloc])
+                    plt.legend(fontsize=a.fontsize[2], prop={"family":a.fontfamily, "size":a.fontsize[2]}, frameon=legend_frame, fancybox=legend_corner, facecolor=legend_color, framealpha=legend_transparency, edgecolor=legend_framecolor, ncol=legend_cols, labelcolor=legend_lettercolor, loc=legendloc_dict[legendloc])
             else:
                 a.display_legend()
             a.add_minorticks()
