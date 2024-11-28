@@ -666,6 +666,7 @@ with tab2:
         if uploaded_file:
             adv_fig = a.makefig()
             plt.rcParams['axes.axisbelow'] = True
+            a.custom_ticks()
             # 設定適用
             if setfunction and f and f_max > f_min:
                 plt.plot(x, y, linetype_dict[f_linetype], c = f_color, linewidth = f_size, label = f_legend)
@@ -680,7 +681,6 @@ with tab2:
 
             a.enable_ticks()
             a.tick_direction()
-            a.custom_ticks()
             a.valueplot2()
             if legendsetting:
                 if "外側" in legendloc:
