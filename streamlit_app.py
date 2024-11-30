@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import streamlit as st
 from matplotlib.font_manager import FontProperties
 import matplotlib.font_manager as fm
+from sympy import *
 
 st.set_page_config(
     page_title="matplotlib GUI",
@@ -461,6 +462,7 @@ with tab1:
                 )
     '''
     **更新履歴**
+    - 関数の入力方法を変更(2024/11/30)
     - 凡例に日本語を表示できるように変更(2024/11/26)
     - グラフ全体のフォントを明朝体とゴシック体で切り替えられるように変更(2024/11/26)
     - フォントサイズをラベル、目盛り、凡例で個別に指定できるように変更(2024/05/24)
@@ -476,8 +478,8 @@ with tab2:
     with st.container(height=450):
         with st.expander("ユーザー関数を表示"):
             setfunction = st.checkbox(":orange-background[有効化]", value = False, key="function")
-            f = st.text_input("表示したいxの関数を入力", placeholder = "例) np.sin(x), x**2 - 4*x + 3")
-            st.caption("累乗はアスタリスク2つ(**)で表す 三角関数等はhttps://deepage.net/features/numpy-math.html などを参照")
+            f = st.text_input("表示したいxの関数を入力", placeholder = "例) sin(x)+cos(x), x**2 - 4*x + 3, log(x)")
+            st.caption("SymPyの関数・定数を利用可能です。https://pianofisica.hatenablog.com/entry/2021/04/23/190000 などを参考にして、`sympy.`または`sp.`を除いて入力してください。累乗はアスタリスク2つ`**`で表します。")
             st.write("表示する範囲(入力必須)")
             # オプション
             f_min = 0
@@ -515,8 +517,8 @@ with tab2:
             # 配列作成
             if f and f_max > f_min:
                 try:
-                    for i in x:
-                        y = eval(f)
+                    func = sympify(f)
+                    y = [func.subs('x', val) for val in x]
                 except:
                     st.error("関数を正しく入力できているか確認してください", icon="🚨")
 
