@@ -189,10 +189,10 @@ class plot_main:
     
     # X軸ラベル
     def add_xlabel(self):
-        plt.xlabel(self.xlabel, fontfamily = self.fontfamily, fontsize = self.fontsize[1])
+        plt.xlabel(self.xlabel, fontfamily = self.fontfamily, fontsize = self.fontsize[0])
     # Y軸ラベル
     def add_ylabel(self):
-        plt.ylabel(self.ylabel, fontfamily = self.fontfamily, fontsize = self.fontsize[1])
+        plt.ylabel(self.ylabel, fontfamily = self.fontfamily, fontsize = self.fontsize[0])
 
     # NaNの除去
     def removeNaN(self, list):
