@@ -179,20 +179,20 @@ class plot_main:
     # 軸目盛り
     def set_ticks(self):
         if self.xscale:
-            plt.xticks(self.xtick_list_num, self.xtick_list, fontsize = self.fontsize[1], fontfamily = a.fontfamily)
+            plt.xticks(self.xtick_list_num, self.xtick_list, fontsize = self.fontsize[1], fontfamily = self.fontfamily)
         else:
-            plt.xticks(fontsize = self.fontsize[1], fontfamily = a.fontfamily)
+            plt.xticks(fontsize = self.fontsize[1], fontfamily = self.fontfamily)
         if self.yscale:
             plt.yticks(self.ytick_list_num, self.ytick_list, fontsize = self.fontsize[1])
         else:
-            plt.yticks(fontsize = self.fontsize[1], fontfamily = a.fontfamily)
+            plt.yticks(fontsize = self.fontsize[1], fontfamily = self.fontfamily)
     
     # X軸ラベル
     def add_xlabel(self):
-        plt.xlabel(self.xlabel, fontfamily = a.fontfamily)
+        plt.xlabel(self.xlabel, fontfamily = self.fontfamily, fontsize = self.fontsize[1])
     # Y軸ラベル
     def add_ylabel(self):
-        plt.ylabel(self.ylabel, fontfamily = a.fontfamily)
+        plt.ylabel(self.ylabel, fontfamily = self.fontfamily, fontsize = self.fontsize[1])
 
     # NaNの除去
     def removeNaN(self, list):
