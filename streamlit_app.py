@@ -350,8 +350,10 @@ with st.sidebar:
     fontstyle = st.radio("フォントスタイル", ["明朝体", "ゴシック体"], horizontal=True)
     if fontstyle == "明朝体":
         a.fontfamily = "Harano Aji Mincho"
+        plt.rcParams["mathtext.fontset"] = "cm"
     if fontstyle == "ゴシック体":
         a.fontfamily = "Harano Aji Gothic"
+        plt.rcParams["mathtext.fontset"] = "stixsans"
     yaxis = []
     if uploaded_file:
         #data_set = get_data(uploaded_file)
@@ -462,6 +464,7 @@ with tab1:
                 )
     '''
     **更新履歴**
+    - 数式のフォントを変更(2024/12/26)
     - 関数の入力方法を変更(2024/11/30)
     - 凡例に日本語を表示できるように変更(2024/11/26)
     - グラフ全体のフォントを明朝体とゴシック体で切り替えられるように変更(2024/11/26)
