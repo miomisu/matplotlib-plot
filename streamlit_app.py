@@ -183,7 +183,7 @@ class plot_main:
         else:
             plt.xticks(fontsize = self.fontsize[1], fontfamily = self.fontfamily)
         if self.yscale:
-            plt.yticks(self.ytick_list_num, self.ytick_list, fontsize = self.fontsize[1])
+            plt.yticks(self.ytick_list_num, self.ytick_list, fontsize = self.fontsize[1], fontfamily = self.fontfamily)
         else:
             plt.yticks(fontsize = self.fontsize[1], fontfamily = self.fontfamily)
     
@@ -274,7 +274,7 @@ with st.sidebar:
         a.xmin = st.number_input("X軸の最小値", value=None, step=0.1)
     with col2:
         a.xmax = st.number_input("X軸の最大値", value=None, step=0.1)
-    st.caption("両方とも入力していない場合自動で調整されます")
+    st.caption("両方とも入力すると適用されます")
     st.caption("0.01未満の値を入力した場合0.00と表示されます")
     if a.xmin != None:
         if a.xmax != None:
@@ -285,7 +285,7 @@ with st.sidebar:
         a.ymin = st.number_input("Y軸の最小値", value=None, step=0.01)
     with col2:
         a.ymax = st.number_input("Y軸の最大値", value=None, step=0.01)
-    st.caption("両方とも入力していない場合自動で調整されます")
+    st.caption("両方とも入力すると適用されます")
     st.caption("0.01未満の値を入力した場合0.00と表示されます")
     if a.ymin != None:
         if a.ymax != None:
