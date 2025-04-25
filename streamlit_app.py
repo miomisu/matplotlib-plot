@@ -266,7 +266,7 @@ with st.sidebar:
     if uploaded_file:
         data_set = get_data(uploaded_file, dlmt, sh)
         with st.expander("データを見る"):
-            st.write(data_set)
+            data_set = st.data_editor(data_set, num_rows="dynamic")
     # グラフのオプション
     st.subheader("グラフのオプション")
     col1, col2 = st.columns(2)
@@ -464,6 +464,7 @@ with tab1:
                 )
     '''
     **更新履歴**
+    - アップロードしたデータを編集できるように変更(2025/04/25)
     - 数式のフォントを変更(2024/12/26)
     - 関数の入力方法を変更(2024/11/30)
     - 凡例に日本語を表示できるように変更(2024/11/26)
