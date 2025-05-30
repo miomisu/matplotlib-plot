@@ -38,50 +38,48 @@ def get_data2(file, dlmt, sh) -> np.ndarray:
 
 # クラス作成
 class plot_main:
-    def __init__(self, dpi, width, height, toptick, bottomtick, lefttick, righttick, xtickdir, ytickdir, property, legends, minorticks, grid, xlog, ylog, xmin, xmax, ymin, ymax, xscale, yscale, fontsize, fontfamily, xlabel, ylabel, fp, column, xaxis, xtick_list_num, xtick_list, ytick_list_num, ytick_list, ticksetting, xmajor_size, ymajor_size, xminor_size, yminor_size, xmajor_width, ymajor_width, xminor_width, yminor_width, title, expantion):
-        self.dpi = dpi
-        self.width = width
-        self.height = height
-        self.toptick = toptick
-        self.bottomtick = bottomtick
-        self.lefttick = lefttick
-        self.righttick = righttick
-        self.xtickdir = xtickdir
-        self.ytickdir = ytickdir
-        self.property = property
-        self.legends = legends
-        self.minorticks = minorticks
-        self.grid = grid
-        self.xlog = xlog
-        self.ylog = ylog
-        self.xmin = xmin
-        self.xmax = xmax
-        self.ymin = ymin
-        self.ymax = ymax
-        self.xscale = xscale
-        self.yscale = yscale
-        self.fontsize = fontsize
-        self.fontfamily = fontfamily
-        self.xlabel = xlabel
-        self.ylabel = ylabel
-        self.fp = fp
-        self.column = column
-        self.xaxis = xaxis
-        self.xtick_list_num = xtick_list_num
-        self.xtick_list = xtick_list
-        self.ytick_list_num = ytick_list_num
-        self.ytick_list = ytick_list
-        self.ticksetting = ticksetting
-        self.xmajor_size = xmajor_size
-        self.ymajor_size = ymajor_size
-        self.xminor_size = xminor_size
-        self.yminor_size = yminor_size
-        self.xmajor_width = xmajor_width
-        self.ymajor_width = ymajor_width
-        self.xminor_width = xminor_width
-        self.yminor_width = yminor_width
-        self.title = title
-        self.expantion = expantion
+    dpi: int = 0
+    width: int = 0
+    height: int = 0
+    toptick: bool = True
+    bottomtick: bool = True
+    lefttick: bool = True
+    righttick: bool = True
+    xtickdir: str = ""
+    ytickdir: str = ""
+    property: list = field(default_factory=list)
+    legends: bool = True
+    minorticks: bool = True
+    grid: bool = True
+    xlog: bool = True
+    ylog: bool = True
+    xmin: float = 0
+    xmax: float = 0
+    ymin: float = 0
+    ymax: float = 0
+    xscale: bool = True
+    yscale: bool = True
+    fontsize: int = 0
+    fontfamily: str = ""
+    xlabel: str = ""
+    ylabel: str = ""
+    fp: type = FontProperties
+    column: list = field(default_factory=list)
+    xtick_list_num: list = field(default_factory=list)
+    xtick_list: list = field(default_factory=list)
+    ytick_list_num: list = field(default_factory=list)
+    ytick_list: list = field(default_factory=list)
+    ticksetting: bool = True
+    xmajor_size: float = 0
+    ymajor_size: float = 0
+    xminor_size: float = 0
+    yminor_size: float = 0
+    xmajor_width: float = 0
+    ymajor_width: float = 0
+    xminor_width: float = 0
+    yminor_width: float = 0
+    title: str = ""
+    expantion:str = "" 
     
     # figure作成
     def makefig(self):
@@ -248,8 +246,7 @@ markers_dict = {"●": "o", "■": "s", "▼": "v", "▲": "^","◆": "D", "✚"
 linetype_dict = {"実線":"-", "破線":"--", "点線":":", "一点鎖線":"-."}
 
 # オブジェクト作成
-param_list = [None for i in range(43)]
-a = plot_main(*param_list)
+a = plot_main()
 
 with st.sidebar:
     st.header("基本設定")
@@ -431,7 +428,6 @@ with tab1:
     #st.write(matplotlib.matplotlib_fname())
     if uploaded_file:
         # プロット
-        # fig = a.plot_fig() <-エラーが出る
         fig = a.makefig()
         plt.rcParams["grid.linewidth"] = 0.8
         plt.rcParams["axes.linewidth"] = 0.8
@@ -798,6 +794,6 @@ with tab4:
     '''
     
     '''
-    import matplotlib.font_manager as fm
-    font_list = sorted(fm.get_font_names())
-    st.write(font_list)
+    # import matplotlib.font_manager as fm
+    # font_list = sorted(fm.get_font_names())
+    # st.write(font_list)
