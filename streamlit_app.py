@@ -260,6 +260,11 @@ with st.sidebar:
             a.ytick_list_num = [float(i) for i in a.ytick_list]
         except:
             st.error("数値を入力してください", icon="🚨")
+        col1, col2 = st.columns(2)
+        with col1:
+            a.xtick_distance= st.number_input("X軸目盛りラベルと軸の距離", min_value=0, value=5, step=1)
+        with col2:
+            a.ytick_distance= st.number_input("Y軸目盛りラベルと軸の距離", min_value=0, value=5, step=1)
         a.minorticks = st.checkbox("補助目盛り", value="True")
     col1, col2 = st.columns(2)
     with col1:
