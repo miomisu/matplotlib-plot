@@ -72,65 +72,54 @@ class plot_main:
     ytick_list_num: list = field(default_factory=list)
     ytick_list: list = field(default_factory=list)
     ticksetting: bool = True
-    xmajor_size: float = 0
-    ymajor_size: float = 0
-    xminor_size: float = 0
-    yminor_size: float = 0
-    xmajor_width: float = 0
-    ymajor_width: float = 0
-    xminor_width: float = 0
-    yminor_width: float = 0
+    xmajor_size: float = 4.0
+    ymajor_size: float = 4.0
+    xminor_size: float = 2.0
+    yminor_size: float = 2.0
+    xmajor_width: float = 1.0
+    ymajor_width: float = 1.0
+    xminor_width: float = 0.6
+    yminor_width: float = 0.6
     title: str = ""
-    expantion:str = "" 
+    expantion: str = "" 
+    xtick_distance: int = 0
+    ytick_distance: int = 0
     
     # figure作成
     def makefig(self):
         fig = plt.figure(dpi=self.dpi, figsize=(self.width, self.height))
         return fig
-    
-    # 目盛り有無
-    def enable_ticks(self):
-        plt.rcParams["xtick.top"] = self.toptick
-        plt.rcParams["xtick.bottom"] = self.bottomtick
-        plt.rcParams["ytick.left"] = self.lefttick
-        plt.rcParams["ytick.right"] = self.righttick
-    
-    # 目盛り向き
-    def tick_direction(self):
-        if self.xtickdir == "内側":
-            plt.rcParams["xtick.direction"] = "in"
-        elif self.xtickdir == "外側":
-            plt.rcParams["xtick.direction"] = "out"
-        else:
-            plt.rcParams["xtick.direction"] = "inout"
 
+    # 目盛り全般設定
+    def xtick_settings(self):
+        if self.xscale:
+            plt.xticks(self.xtick_list_num, self.xtick_list)
+        else:
+            plt.xticks()
+        if self.xtickdir == "内側":
+            plt.tick_params(axis='x', which='minor', direction='in', length=self.xminor_size, width=self.xminor_width, bottom=self.bottomtick, top=self.toptick, left=self.lefttick, right=self.righttick)
+            plt.tick_params(axis="x", which="major", direction='in', length=self.xmajor_size, width=self.xmajor_width, bottom=self.bottomtick, top=self.toptick, left=self.lefttick, right=self.righttick, pad=self.xtick_distance, labelfontfamily=self.fontfamily, labelsize=self.fontsize[1])
+        elif self.xtickdir == "外側":
+            plt.tick_params(axis='x', which='minor', direction='out', length=self.xminor_size, width=self.xminor_width, bottom=self.bottomtick, top=self.toptick, left=self.lefttick, right=self.righttick)
+            plt.tick_params(axis="x", which="major", direction='out', length=self.xmajor_size, width=self.xmajor_width, bottom=self.bottomtick, top=self.toptick, left=self.lefttick, right=self.righttick, pad=self.xtick_distance, labelfontfamily=self.fontfamily, labelsize=self.fontsize[1])
+        else:
+            plt.tick_params(axis='x', which='minor', direction='inout', length=self.xminor_size, width=self.xminor_width, bottom=self.bottomtick, top=self.toptick, left=self.lefttick, right=self.righttick)
+            plt.tick_params(axis="x", which="major", direction='inout', length=self.xmajor_size, width=self.xmajor_width, bottom=self.bottomtick, top=self.toptick, left=self.lefttick, right=self.righttick, pad=self.xtick_distance, labelfontfamily=self.fontfamily, labelsize=self.fontsize[1])
+
+    def ytick_settings(self):
+        if self.yscale:
+            plt.yticks(self.ytick_list_num, self.ytick_list)
+        else:
+            plt.yticks()
         if self.ytickdir == "内側":
-            plt.rcParams["ytick.direction"] = "in"
+            plt.tick_params(axis='y', which='minor', direction='in', length=self.yminor_size, width=self.yminor_width, bottom=self.bottomtick, top=self.toptick, left=self.lefttick, right=self.righttick)
+            plt.tick_params(axis="y", which="major", direction='in', length=self.ymajor_size, width=self.ymajor_width, bottom=self.bottomtick, top=self.toptick, left=self.lefttick, right=self.righttick, pad=self.ytick_distance, labelfontfamily=self.fontfamily, labelsize=self.fontsize[1])
         elif self.ytickdir == "外側":
-            plt.rcParams["ytick.direction"] = "out"
+            plt.tick_params(axis='y', which='minor', direction='out', length=self.yminor_size, width=self.yminor_width, bottom=self.bottomtick, top=self.toptick, left=self.lefttick, right=self.righttick)
+            plt.tick_params(axis="y", which="major", direction='out', length=self.ymajor_size, width=self.ymajor_width, bottom=self.bottomtick, top=self.toptick, left=self.lefttick, right=self.righttick, pad=self.ytick_distance, labelfontfamily=self.fontfamily, labelsize=self.fontsize[1])
         else:
-            plt.rcParams["ytick.direction"] = "inout"
-    
-    # 目盛り線
-    def custom_ticks(self):
-        if self.ticksetting:
-            plt.rcParams["xtick.major.size"] = self.xmajor_size
-            plt.rcParams["ytick.major.size"] = self.ymajor_size
-            plt.rcParams["xtick.minor.size"] = self.xminor_size
-            plt.rcParams["ytick.minor.size"] = self.yminor_size
-            plt.rcParams["xtick.major.width"] = self.xmajor_width
-            plt.rcParams["ytick.major.width"] = self.ymajor_width
-            plt.rcParams["xtick.minor.width"] = self.xminor_width
-            plt.rcParams["ytick.minor.width"] = self.yminor_width
-        else:
-            plt.rcParams["xtick.major.size"] = 4.0
-            plt.rcParams["ytick.major.size"] = 4.0
-            plt.rcParams["xtick.minor.size"] = 2.0
-            plt.rcParams["ytick.minor.size"] = 2.0
-            plt.rcParams["xtick.major.width"] = 1.0
-            plt.rcParams["ytick.major.width"] = 1.0
-            plt.rcParams["xtick.minor.width"] = 0.6
-            plt.rcParams["ytick.minor.width"] = 0.6
+            plt.tick_params(axis='y', which='minor', direction='inout', length=self.yminor_size, width=self.yminor_width, bottom=self.bottomtick, top=self.toptick, left=self.lefttick, right=self.righttick)
+            plt.tick_params(axis="y", which="major", direction='inout', length=self.ymajor_size, width=self.ymajor_width, bottom=self.bottomtick, top=self.toptick, left=self.lefttick, right=self.righttick, pad=self.ytick_distance, labelfontfamily=self.fontfamily, labelsize=self.fontsize[1])
     
     def valueplot2(self):
         for o in self.property:
@@ -176,17 +165,6 @@ class plot_main:
         if self.ymin != None and self.ymax != None:
             plt.ylim(self.ymin, self.ymax)
     
-    # 軸目盛り
-    def set_ticks(self):
-        if self.xscale:
-            plt.xticks(self.xtick_list_num, self.xtick_list, fontsize = self.fontsize[1], fontfamily = self.fontfamily)
-        else:
-            plt.xticks(fontsize = self.fontsize[1], fontfamily = self.fontfamily)
-        if self.yscale:
-            plt.yticks(self.ytick_list_num, self.ytick_list, fontsize = self.fontsize[1], fontfamily = self.fontfamily)
-        else:
-            plt.yticks(fontsize = self.fontsize[1], fontfamily = self.fontfamily)
-    
     # X軸ラベル
     def add_xlabel(self):
         plt.xlabel(self.xlabel, fontfamily = self.fontfamily, fontsize = self.fontsize[0])
@@ -204,43 +182,6 @@ class plot_main:
             return True
         else:
             return False
-
-    # プロット(完全)
-    def plot_fig(self) -> matplotlib.figure.Figure:
-        fig = self.makefig(self.dpi, self.width, self.height)
-        self.enable_ticks(self.toptick, self.bottomtick, self.lefttick, self.righttick)
-        self.tick_direction(self.xtickdir, self.ytickdir)
-        self.custom_ticks(self.ticksetting, self.xmajor_size, self.ymajor_size, self.xminor_size, self.yminor_size, self.xmajor_width, self.ymajor_width, self.xminor_width, self.yminor_width)
-        self.valueplot(self.property, self.column)
-        self.display_legend(self.legends, self.ja_legends, self.fontsize[2])
-        self.add_minorticks(self.minorticks)
-        self.display_grid(self.grid)
-        self.enable_xlog(self.xlog)
-        self.enable_ylog(self.ylog)
-        self.xrange(self.xmin, self.xmax)
-        self.yrange(self.ymin, self.ymax)
-        self.set_ticks(self.xscale, self.xtick_list_num, self.xtick_list, self.yscale, self.ytick_list_num, self.ytick_list, self.fontsize[1])
-        self.add_xlabel(self.xlabel, self.fp)
-        self.add_ylabel(self.ylabel, self.fp)
-        return fig
-    
-    # プロット(凡例なし)
-    def plot_fig_nolegend(self) -> matplotlib.figure.Figure:
-        fig = self.makefig(self.dpi, self.width, self.height)
-        self.enable_ticks(self.toptick, self.bottomtick, self.lefttick, self.righttick)
-        self.tick_direction(self.xtickdir, self.ytickdir)
-        self.custom_ticks(self.ticksetting, self.xmajor_size, self.ymajor_size, self.xminor_size, self.yminor_size, self.xmajor_width, self.ymajor_width, self.xminor_width, self.yminor_width)
-        self.valueplot(self.property, self.column)
-        self.add_minorticks(self.minorticks)
-        self.display_grid(self.grid)
-        self.enable_xlog(self.xlog)
-        self.enable_ylog(self.ylog)
-        self.xrange(self.xmin, self.xmax)
-        self.yrange(self.ymin, self.ymax)
-        self.set_ticks(self.xscale, self.xtick_list_num, self.xtick_list, self.yscale, self.ytick_list_num, self.ytick_list, self.fontsize[1])
-        self.add_xlabel(self.xlabel, self.fp)
-        self.add_ylabel(self.ylabel, self.fp)
-        return fig
 
 # マーカーのオプション
 colors = ["white", "black", "gray", "lightgrey", "red", "coral", "orangered", "sandybrown", "darkorange", "orange", "gold", "yellow", "lawngreen", "green", "darkgreen", "lime", "aqua", "dodgerblue", "royalblue", "darkblue", "violet", "purple", "magenta", "hotpink"]
@@ -435,9 +376,8 @@ with tab1:
         plt.rcParams["axes.linewidth"] = 0.8
         plt.rcParams["grid.color"] = "#b0b0b0"
         plt.rcParams['axes.axisbelow'] = True
-        a.enable_ticks()
-        a.tick_direction()
-        a.custom_ticks()
+        a.xtick_settings()
+        a.ytick_settings()
         a.valueplot2()
         a.display_legend()
         a.add_minorticks()
@@ -446,7 +386,6 @@ with tab1:
         a.enable_ylog()
         a.xrange()
         a.yrange()
-        a.set_ticks()
         a.add_xlabel()
         a.add_ylabel()
         # 表示
@@ -670,7 +609,6 @@ with tab2:
         if uploaded_file:
             adv_fig = a.makefig()
             plt.rcParams['axes.axisbelow'] = True
-            a.custom_ticks()
             # 設定適用
             if setfunction and f and f_max > f_min:
                 plt.plot(x, y, linetype_dict[f_linetype], c = f_color, linewidth = f_size, label = f_legend)
@@ -683,8 +621,8 @@ with tab2:
                     if g[0]:
                         plt.plot(g[2], g[3], linetype_dict[g[4]], c=g[5], linewidth=g[6], label=g[7])
 
-            a.enable_ticks()
-            a.tick_direction()
+            a.xtick_settings()
+            a.ytick_settings()
             a.valueplot2()
             if legendsetting:
                 if "外側" in legendloc:
@@ -715,7 +653,6 @@ with tab2:
             a.enable_ylog()
             a.xrange()
             a.yrange()
-            a.set_ticks()
             a.add_xlabel()
             a.add_ylabel()
             try:
