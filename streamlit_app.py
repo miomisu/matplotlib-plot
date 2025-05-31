@@ -5,6 +5,7 @@ import streamlit as st
 from matplotlib.font_manager import FontProperties
 import matplotlib.font_manager as fm
 from sympy import *
+from dataclasses import dataclass, field
 
 st.set_page_config(
     page_title="matplotlib GUI",
@@ -37,6 +38,7 @@ def get_data2(file, dlmt, sh) -> np.ndarray:
     return data_set
 
 # クラス作成
+@dataclass
 class plot_main:
     dpi: int = 0
     width: int = 0
