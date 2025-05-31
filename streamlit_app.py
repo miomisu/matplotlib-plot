@@ -82,8 +82,8 @@ class plot_main:
     yminor_width: float = 0.6
     title: str = ""
     expantion: str = "" 
-    xtick_distance: int = 0
-    ytick_distance: int = 0
+    xtick_distance: int = 5
+    ytick_distance: int = 5
     
     # figure作成
     def makefig(self):
