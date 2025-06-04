@@ -6,6 +6,9 @@ from matplotlib.font_manager import FontProperties
 import matplotlib.font_manager as fm
 from sympy import *
 from dataclasses import dataclass, field
+import toml
+import tomllib
+import datetime
 
 st.set_page_config(
     page_title="matplotlib GUI",
@@ -27,44 +30,34 @@ def get_data(file, dlmt, sh):# -> np.ndarray:
     )
     return data_set
 
-@st.cache_data
-def get_data2(file, dlmt, sh) -> np.ndarray:
-    data_set = np.genfromtxt(
-        fname=file,
-        dtype="float",
-        delimiter=dlmt,
-        skip_header=sh,
-    )
-    return data_set
-
 # クラス作成
 @dataclass
 class plot_main:
-    dpi: int = 0
-    width: int = 0
-    height: int = 0
-    toptick: bool = True
+    dpi: int = 300
+    width: int = 8
+    height: int = 6
+    toptick: bool = False
     bottomtick: bool = True
     lefttick: bool = True
-    righttick: bool = True
-    xtickdir: str = ""
-    ytickdir: str = ""
-    property: list = field(default_factory=list)
-    legends: bool = True
+    righttick: bool = False
+    xtickdir: str = "内側"
+    ytickdir: str = "内側"
+    property: list = field(default_factory=lambda: [[ 0, 1, "o", 4, 3, "black", "", 1,]])
+    legends: bool = False
     minorticks: bool = True
     grid: bool = True
-    xlog: bool = True
-    ylog: bool = True
-    xmin: float = 0
-    xmax: float = 0
-    ymin: float = 0
-    ymax: float = 0
-    xscale: bool = True
-    yscale: bool = True
-    fontsize: int = 0
+    xlog: bool = False
+    ylog: bool = False
+    xmin: float = None
+    xmax: float = None
+    ymin: float = None
+    ymax: float = None
+    xscale: bool = False
+    yscale: bool = False
+    fontsize: list = field(default_factory=lambda: [12, 12, 12])
     fontfamily: str = ""
-    xlabel: str = ""
-    ylabel: str = ""
+    xlabel: str = "X"
+    ylabel: str = "Y"
     fp: type = FontProperties
     column: list = field(default_factory=list)
     xtick_list_num: list = field(default_factory=list)
@@ -80,8 +73,8 @@ class plot_main:
     ymajor_width: float = 1.0
     xminor_width: float = 0.6
     yminor_width: float = 0.6
-    title: str = ""
-    expantion: str = "" 
+    title: str = "plot"
+    expantion: str = ".png" 
     xtick_distance: int = 5
     ytick_distance: int = 5
     
@@ -340,9 +333,9 @@ with st.sidebar:
                 elif plottyp == "両方":
                     property_[y].append(markers_dict[marke] + linetype_dict[linetyp])
             with col2:
-                markersiz = st.number_input("マーカーの大きさ", value = 4, min_value = 0, step = 1, key=y + 0.06)
+                markersiz = st.number_input("マーカーの大きさ", value=4, min_value=0, step=1, key=y + 0.06)
                 property_[y].append(markersiz)
-                linewidt = st.number_input("線の幅", value = 3, min_value = 0, step = 1, key=y + 0.07)
+                linewidt = st.number_input("線の幅", value=3, min_value=0, step=1, key=y + 0.07)
                 property_[y].append(linewidt)
             with col3:
                 colo = st.selectbox("色", (colors), key=y + 0.08, index=1)
@@ -357,11 +350,11 @@ with st.sidebar:
         st.write("グラフのサイズ")
         col1, col2, col3= st.columns(3)
         with col1:
-            a.dpi = st.number_input("dpi", value = 300, step = 1, min_value = 10)
+            a.dpi = st.number_input("dpi", value=300, step=1, min_value=10)
         with col2:
-            a.width = st.number_input("幅(インチ)", value = 8, step = 1, min_value = 1)
+            a.width = st.number_input("幅(インチ)", value=8, step=1, min_value=1)
         with col3:
-            a.height = st.number_input("高さ(インチ)", value = 6, step = 1, min_value = 1)
+            a.height = st.number_input("高さ(インチ)", value=6, step=1, min_value=1)
         st.write("サイズ(余白削除前)  :    " + str(a.width * a.dpi) + "×" + str(a.height * a.dpi))
         col1, col2 = st.columns(2)
         with col1:
@@ -404,6 +397,24 @@ with tab1:
                 data = file,
                 file_name = a.title + a.expantion,
                 )
+    # 設定保存
+    filtered_settings = {
+        key: value
+        for key, value in vars(a).items()
+        # nullとtype型の変数を除去
+        if not isinstance(value, type) and value is not None
+        # プロットデータを除去
+        if key not in ["column"]
+    }
+    date_str_hyphen = datetime.date.today().strftime("%Y-%m-%d")
+    with open(f"graph_settings_{date_str_hyphen}.toml", "w+", encoding="utf-8") as f:
+        f.write(toml.dumps(filtered_settings))
+        f.seek(0)
+        btn=st.download_button(
+            label="グラフの設定を保存",
+            data=f,
+            file_name=f"graph_settings_{date_str_hyphen}.toml"
+        )
     '''
     **更新履歴**
     - アップロードしたデータを編集できるように変更(2025/04/25)
@@ -423,8 +434,8 @@ with tab2:
     st.subheader("高度な設定")
     with st.container(height=450):
         with st.expander("ユーザー関数を表示"):
-            setfunction = st.checkbox(":orange-background[有効化]", value = False, key="function")
-            f = st.text_input("表示したいxの関数を入力", placeholder = "例) sin(x)+cos(x), x**2 - 4*x + 3, log(x)")
+            setfunction = st.checkbox(":orange-background[有効化]", value=False, key="function")
+            f = st.text_input("表示したいxの関数を入力", placeholder="例) sin(x)+cos(x), x**2 - 4*x + 3, log(x)")
             st.caption("SymPyの関数・定数を利用可能です。https://pianofisica.hatenablog.com/entry/2021/04/23/190000 などを参考にして、`sympy.`または`sp.`を除いて入力してください。累乗はアスタリスク2つ`**`で表します。")
             st.write("表示する範囲(入力必須)")
             # オプション
@@ -438,7 +449,7 @@ with tab2:
                 with col2:
                     f_max = st.number_input("最大値", value=np.max(a.removeNaN(a.column[a.property[0][0]])), step=0.01)
                 with col3:
-                    slice = st.number_input("分割数(滑らかさ)", value = 100, min_value = 0, step = 1)
+                    slice = st.number_input("分割数(滑らかさ)", value=100, min_value=0, step=1)
 
             st.write("オプション")
             col1, col2, col3, col4 = st.columns(4)
@@ -447,7 +458,7 @@ with tab2:
             with col2:
                 f_color = st.selectbox("色", (colors), index=1)
             with col3:
-                f_size = st.number_input("線の幅", value = 3.0, min_value = 0.0, step = 0.5)
+                f_size = st.number_input("線の幅", value=3.0, min_value=0.0, step=0.5)
             with col4:
                 f_legend = st.text_input("凡例名")
             
@@ -521,7 +532,7 @@ with tab2:
                         approx_color = st.selectbox("色", (colors), index=1, key=-1 * o - 0.1)
                         approxproperty[i].append(approx_color)
                     with col3:
-                        approx_width = st.number_input("線の幅", value = 3.0, min_value = 0.0, step = 0.5, key=-1 * o - 0.2)
+                        approx_width = st.number_input("線の幅", value=3.0, min_value=0.0, step=0.5, key=-1 * o - 0.2)
                         approxproperty[i].append(approx_width)
                     with col4:
                         approx_legend = st.text_input("凡例名", key=-1 * o - 0.3)
@@ -529,8 +540,8 @@ with tab2:
 
 
         with st.expander("フォントを指定する(軸ラベルのみ)"):
-            setfont = st.checkbox(":orange-background[有効化]", value = False, disabled=True, key="font")
-            fontpath = st.text_input("フォントファイルのパスを指定", placeholder = "例) C:\Windows\Fonts\HGRPP1.ttc")
+            setfont = st.checkbox(":orange-background[有効化]", value=False, disabled=True, key="font")
+            fontpath = st.text_input("フォントファイルのパスを指定", placeholder="例) C:\Windows\Fonts\HGRPP1.ttc")
             if fontpath:
                 fp = FontProperties(fname=fontpath, size=a.fontsize[0])
             st.caption("システムフォントの場所 C:\\Windows\\Fonts ユーザーフォントの場所 C:\\Users\\ユーザー名\\AppData\\Local\\Microsoft\\Windows\\Fonts")
@@ -616,7 +627,7 @@ with tab2:
             plt.rcParams['axes.axisbelow'] = True
             # 設定適用
             if setfunction and f and f_max > f_min:
-                plt.plot(x, y, linetype_dict[f_linetype], c = f_color, linewidth = f_size, label = f_legend)
+                plt.plot(x, y, linetype_dict[f_linetype], c=f_color, linewidth=f_size, label=f_legend)
             if setframewidh:
                 plt.rcParams["axes.linewidth"] = framewidth
 
