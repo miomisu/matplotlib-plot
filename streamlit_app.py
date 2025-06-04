@@ -82,7 +82,7 @@ class plot_main:
     def makefig(self):
         fig = plt.figure(dpi=self.dpi, figsize=(self.width, self.height))
         return fig
-
+    
     # 目盛り全般設定
     def xtick_settings(self):
         if self.xscale:
@@ -113,7 +113,8 @@ class plot_main:
         else:
             plt.tick_params(axis='y', which='minor', direction='inout', length=self.yminor_size, width=self.yminor_width, bottom=self.bottomtick, top=self.toptick, left=self.lefttick, right=self.righttick)
             plt.tick_params(axis="y", which="major", direction='inout', length=self.ymajor_size, width=self.ymajor_width, bottom=self.bottomtick, top=self.toptick, left=self.lefttick, right=self.righttick, pad=self.ytick_distance, labelfontfamily=self.fontfamily, labelsize=self.fontsize[1])
-    
+
+    # プロット用関数
     def valueplot2(self):
         for o in self.property:
             if any(np.isnan(self.column[o[1]])) or any(np.isnan(self.column[o[0]])):
@@ -176,6 +177,17 @@ class plot_main:
         else:
             return False
 
+# 辞書のvalueから辞書内での順番を取得
+def value_to_index(value: str, dict: dict) -> int:
+    try:
+        return list(dict.keys()).index([k for k, v in dict.items() if v == value][0])
+    except:
+        return 0
+def select_plottype(value: str, dict1: dict, dict2: dict, plottype: str) -> list:
+    if plottype == "marker+line":
+        return [value_to_index(value[0], dict1), value_to_index(value[1:], dict2)]
+    else:
+        return [value_to_index(value, dict1), value_to_index(value, dict2)]
 # マーカーのオプション
 colors = ["white", "black", "gray", "lightgrey", "red", "coral", "orangered", "sandybrown", "darkorange", "orange", "gold", "yellow", "lawngreen", "green", "darkgreen", "lime", "aqua", "dodgerblue", "royalblue", "darkblue", "violet", "purple", "magenta", "hotpink"]
 markers_dict = {"●": "o", "■": "s", "▼": "v", "▲": "^","◆": "D", "✚": "+", "✖": "x"}
@@ -183,10 +195,9 @@ linetype_dict = {"実線":"-", "破線":"--", "点線":":", "一点鎖線":"-."}
 
 # オブジェクト作成
 a = plot_main()
-
 with st.sidebar:
     st.header("基本設定")
-    # ファイル読み込みオプション
+    # ファイル読み込み
     sh = st.number_input("無視する先頭からの行数", min_value=0, value="min", step=1)
     ft = st.radio("ファイルの種類", ["CSV(カンマ区切り)", "TSV(タブ区切り)"], horizontal=True)
     if ft == "CSV(カンマ区切り)":
@@ -200,13 +211,22 @@ with st.sidebar:
         data_set = get_data(uploaded_file, dlmt, sh)
         with st.expander("データを見る"):
             data_set = st.data_editor(data_set, num_rows="dynamic")
-    # グラフのオプション
-    st.subheader("グラフのオプション")
+    # 設定ファイル読み込み
+    st.subheader("設定ファイル読み込み(オプション)")
+    setting_file = st.file_uploader("設定ファイルを選択", type=["toml"])
+    if setting_file:
+        try:
+            settings = tomllib.load(setting_file)
+            a.__dict__.update(settings)
+        except:
+            st.error("正しいファイルを選択できているか確認してください", icon="🚨")
+    # グラフの設定
+    st.subheader("グラフの設定")
     col1, col2 = st.columns(2)
     with col1:
-        a.xmin = st.number_input("X軸の最小値", value=None, step=0.1)
+        a.xmin = st.number_input("X軸の最小値", value=a.xmin, step=0.1)
     with col2:
-        a.xmax = st.number_input("X軸の最大値", value=None, step=0.1)
+        a.xmax = st.number_input("X軸の最大値", value=a.xmax, step=0.1)
     st.caption("両方とも入力すると適用されます")
     st.caption("0.01未満の値を入力した場合0.00と表示されます")
     if a.xmin != None:
@@ -215,9 +235,9 @@ with st.sidebar:
                 st.error("最小値が最大値より大きくなっています", icon="🚨")
     col1, col2 = st.columns(2)
     with col1:
-        a.ymin = st.number_input("Y軸の最小値", value=None, step=0.01)
+        a.ymin = st.number_input("Y軸の最小値", value=a.ymin, step=0.01)
     with col2:
-        a.ymax = st.number_input("Y軸の最大値", value=None, step=0.01)
+        a.ymax = st.number_input("Y軸の最大値", value=a.ymax, step=0.01)
     st.caption("両方とも入力すると適用されます")
     st.caption("0.01未満の値を入力した場合0.00と表示されます")
     if a.ymin != None:
@@ -227,27 +247,27 @@ with st.sidebar:
     with st.expander("目盛りの詳細設定"):
         col1, col2, col3, col4 = st.columns(4)
         with col1:
-            a.toptick = st.checkbox("上側目盛り", value=False)
+            a.toptick = st.checkbox("上側目盛り", value=a.toptick)
         with col2:
-            a.bottomtick = st.checkbox("下側目盛り", value=True)
+            a.bottomtick = st.checkbox("下側目盛り", value=a.bottomtick)
         with col3:
-            a.lefttick = st.checkbox("左側目盛り", value=True)
+            a.lefttick = st.checkbox("左側目盛り", value=a.lefttick)
         with col4:
-            a.righttick = st.checkbox("右側目盛り", value=False)
+            a.righttick = st.checkbox("右側目盛り", value=a.righttick)
         col1, col2 = st.columns(2)
         with col1:
-            a.xtickdir = st.radio("X軸の目盛りの向き", ["内側", "外側", "両方"], horizontal=True, index=0)
+            a.xtickdir = st.radio("X軸の目盛りの向き", ["内側", "外側", "両方"], horizontal=True, index=["内側", "外側", "両方"].index(a.xtickdir))
         with col2:
-            a.ytickdir = st.radio("Y軸の目盛りの向き", ["内側", "外側", "両方"], horizontal=True, index=0)
-        a.xscale = st.checkbox("X軸の目盛りの位置を設定", value = False)
-        xtick = st.text_input("目盛りを表示する位置(数値)をスペースで区切って入力", key = "xtick")
+            a.ytickdir = st.radio("Y軸の目盛りの向き", ["内側", "外側", "両方"], horizontal=True, index=["内側", "外側", "両方"].index(a.ytickdir))
+        a.xscale = st.checkbox("X軸の目盛りの位置を設定", value=a.xscale)
+        xtick = st.text_input("目盛りを表示する位置(数値)をスペースで区切って入力", key = "xtick", value=' '.join(a.xtick_list))
         a.xtick_list = xtick.split()
         try:
             a.xtick_list_num = [float(i) for i in a.xtick_list]
         except:
             st.error("数値を入力してください", icon="🚨")
-        a.yscale = st.checkbox("Y軸の目盛りの位置を設定", value = False)
-        ytick = st.text_input("目盛りを表示する位置(数値)をスペースで区切って入力", key = "ytick")
+        a.yscale = st.checkbox("Y軸の目盛りの位置を設定", value=a.yscale)
+        ytick = st.text_input("目盛りを表示する位置(数値)をスペースで区切って入力", key = "ytick", value=' '.join(a.ytick_list))
         a.ytick_list = ytick.split()
         try:
             a.ytick_list_num = [float(i) for i in a.ytick_list]
@@ -255,36 +275,33 @@ with st.sidebar:
             st.error("数値を入力してください", icon="🚨")
         col1, col2 = st.columns(2)
         with col1:
-            a.xtick_distance= st.number_input("X軸目盛りラベルと軸の距離", min_value=0, value=5, step=1)
+            a.xtick_distance= st.number_input("X軸目盛りラベルと軸の距離", min_value=0, value=a.xtick_distance, step=1)
         with col2:
-            a.ytick_distance= st.number_input("Y軸目盛りラベルと軸の距離", min_value=0, value=5, step=1)
-        a.minorticks = st.checkbox("補助目盛り", value="True")
+            a.ytick_distance= st.number_input("Y軸目盛りラベルと軸の距離", min_value=0, value=a.ytick_distance, step=1)
+        a.minorticks = st.checkbox("補助目盛り", value=a.minorticks)
     col1, col2 = st.columns(2)
     with col1:
-        a.xlabel = st.text_input("X軸のラベル", "X")
+        a.xlabel = st.text_input("X軸のラベル", value=a.xlabel)
     with col2:
-        a.ylabel = st.text_input("Y軸のラベル", "Y")
+        a.ylabel = st.text_input("Y軸のラベル", value=a.ylabel)
     st.caption("$で囲むことでTeX記法の数式を使用可能")
     col1, col2 = st.columns(2)
     with col1:
-        a.xlog = st.checkbox("X軸を対数軸にする", value=False)
-        a.legends = st.checkbox("凡例表示", value=False)
-        a.ja_legends = False
+        a.xlog = st.checkbox("X軸を対数軸にする", value=a.xlog)
+        a.legends = st.checkbox("凡例表示", value=a.legends)
     with col2:
-        a.ylog = st.checkbox("Y軸を対数軸にする", value=False)
-        a.grid = st.checkbox("グリッド", value="True")
+        a.ylog = st.checkbox("Y軸を対数軸にする", value=a.ylog)
+        a.grid = st.checkbox("グリッド", value=a.grid)
     # フォント指定
-    a.fontsize = [None for i in range(3)]
     col1, col2, col3 = st.columns(3)
     fm.fontManager.addfont(r"HaranoAjiGothic-Regular.otf")
     fm.fontManager.addfont(r"HaranoAjiMincho-Regular.otf")
     with col1:
-        a.fontsize[0] = st.number_input("ラベルのフォントサイズ", min_value=0, step=1, value=12)
-        #a.fp = FontProperties(fname=r"NotoSansJP-Regular.ttf", size=a.fontsize[0])
+        a.fontsize[0] = st.number_input("ラベルのフォントサイズ", min_value=0, step=1, value=a.fontsize[0])
     with col2:
-        a.fontsize[1] = st.number_input("目盛りのフォントサイズ", min_value=0, step=1, value=12)
+        a.fontsize[1] = st.number_input("目盛りのフォントサイズ", min_value=0, step=1, value=a.fontsize[1])
     with col3:
-        a.fontsize[2] = st.number_input("凡例のフォントサイズ", min_value=0, step=1, value=12)
+        a.fontsize[2] = st.number_input("凡例のフォントサイズ", min_value=0, step=1, value=a.fontsize[2])
     fontstyle = st.radio("フォントスタイル", ["明朝体", "ゴシック体"], horizontal=True)
     if fontstyle == "明朝体":
         a.fontfamily = "Harano Aji Mincho"
@@ -306,42 +323,55 @@ with st.sidebar:
                     a.column[i].append(data_set[j][i])
         except:
             st.error("正しいファイルを選択できているか確認してください", icon="🚨")
-
         st.header("プロットするデータ系列")
-        number_of_data = st.number_input("プロットするデータ系列の数", min_value=0, step=1, value=1)
+        number_of_data = st.number_input("プロットするデータ系列の数", min_value=0, step=1, value=len(a.property))
+        a.property += [[ 0, 1, "o", 4, 3, "black", "", 1,] for i in range(number_of_data - 1)]
         property_ = [[] for i in range(number_of_data)]
+        # プロットするデータ系列の数だけ設定を用意
         for y in range(number_of_data):
             st.write("**データ系列" + str(y + 1) + "**")
             col1, col2 = st.columns(2)
             with col1:
-                xa = st.selectbox("Xとする列", columns, index=0, key=y + 0.01)
+                xa = st.selectbox("Xとする列", columns, index=a.property[y][0], key=y + 0.01)
                 property_[y].append(xa)
             with col2:
-                ya = st.selectbox("Yとする列", columns, index=1, key=y + 0.02)
+                ya = st.selectbox("Yとする列", columns, index=a.property[y][1], key=y + 0.02)
                 property_[y].append(ya)
             if xa == ya:
                 st.error("X軸とY軸で同じ列を選択しています", icon="🚨")
-            plottyp = st.radio("プロットの種類", ["マーカー", "折れ線", "両方"], horizontal=True, key=y + 0.05, disabled=(any(np.isnan(a.column[ya])) or any(np.isnan(a.column[xa]))) and not a.comparison_element(a.column[xa], a.column[ya]))
+            if a.property[y][7] == "marker+line":
+                plottype_index = 2
+            elif a.property[y][7] == "line":
+                plottype_index = 1
+            else:
+                plottype_index = 0
+            plottype = st.radio("プロットの種類", ["マーカー", "折れ線", "両方"], horizontal=True, key=y + 0.05, disabled=(any(np.isnan(a.column[ya])) or any(np.isnan(a.column[xa]))) and not a.comparison_element(a.column[xa], a.column[ya]), index=plottype_index)
             col1, col2, col3= st.columns(3)
             with col1:
-                marke = st.selectbox("マーカーの形", (markers_dict.keys()), key=y + 0.03)
-                linetyp = st.selectbox("線の種類", (linetype_dict.keys()), key=y + 0.04)
-                if plottyp == "マーカー":
-                    property_[y].append(markers_dict[marke])
-                elif plottyp == "折れ線":
-                    property_[y].append(linetype_dict[linetyp])
-                elif plottyp == "両方":
-                    property_[y].append(markers_dict[marke] + linetype_dict[linetyp])
+                marker = st.selectbox("マーカーの形", (markers_dict.keys()), key=y + 0.03, index=select_plottype(a.property[y][2], markers_dict, linetype_dict, a.property[y][7])[0])
+                linetype = st.selectbox("線の種類", (linetype_dict.keys()), key=y + 0.04, index=select_plottype(a.property[y][2], markers_dict, linetype_dict, a.property[y][7])[1])
+                if plottype == "マーカー":
+                    property_[y].append(markers_dict[marker])
+                elif plottype == "折れ線":
+                    property_[y].append(linetype_dict[linetype])
+                elif plottype == "両方":
+                    property_[y].append(markers_dict[marker] + linetype_dict[linetype])
             with col2:
-                markersiz = st.number_input("マーカーの大きさ", value=4, min_value=0, step=1, key=y + 0.06)
-                property_[y].append(markersiz)
-                linewidt = st.number_input("線の幅", value=3, min_value=0, step=1, key=y + 0.07)
-                property_[y].append(linewidt)
+                markersize = st.number_input("マーカーの大きさ", value=a.property[y][3], min_value=0, step=1, key=y + 0.06)
+                property_[y].append(markersize)
+                linewidth = st.number_input("線の幅", value=a.property[y][4], min_value=0, step=1, key=y + 0.07)
+                property_[y].append(linewidth)
             with col3:
-                colo = st.selectbox("色", (colors), key=y + 0.08, index=1)
-                property_[y].append(colo)
-                legen = st.text_input("凡例名", key=y + 0.09)
-                property_[y].append(legen)
+                color = st.selectbox("色", (colors), key=y + 0.08, index=colors.index(a.property[y][5]))
+                property_[y].append(color)
+                legend = st.text_input("凡例名", key=y + 0.09, value=a.property[y][6])
+                property_[y].append(legend)
+            if plottype == "マーカー":
+                    property_[y].append("marker")
+            elif plottype == "折れ線":
+                property_[y].append("line")
+            elif plottype == "両方":
+                property_[y].append("marker+line")
             property_[y].append(y + 1)
             '''
             ---
@@ -350,17 +380,17 @@ with st.sidebar:
         st.write("グラフのサイズ")
         col1, col2, col3= st.columns(3)
         with col1:
-            a.dpi = st.number_input("dpi", value=300, step=1, min_value=10)
+            a.dpi = st.number_input("dpi", value=a.dpi, step=1, min_value=10)
         with col2:
-            a.width = st.number_input("幅(インチ)", value=8, step=1, min_value=1)
+            a.width = st.number_input("幅(インチ)", value=a.width, step=1, min_value=1)
         with col3:
-            a.height = st.number_input("高さ(インチ)", value=6, step=1, min_value=1)
+            a.height = st.number_input("高さ(インチ)", value=a.height, step=1, min_value=1)
         st.write("サイズ(余白削除前)  :    " + str(a.width * a.dpi) + "×" + str(a.height * a.dpi))
         col1, col2 = st.columns(2)
         with col1:
-            a.title = st.text_input("保存するファイル名", "plot")
+            a.title = st.text_input("保存するファイル名", a.title)
         with col2:
-            a.expantion = st.selectbox("保存する拡張子", (".png", ".jpg", ".svg", ".pdf"))
+            a.expantion = st.selectbox("保存する拡張子", (".png", ".jpg", ".svg", ".pdf"), index=[".png", ".jpg", ".svg", ".pdf"].index(a.expantion))
         st.caption("svg, pdfの場合プロットする点が多いと保存した画像が重くなるので注意")
 
 with tab1:
@@ -417,6 +447,7 @@ with tab1:
         )
     '''
     **更新履歴**
+    - グラフの設定のエクスポート・インポート機能を追加(2025/06/04)
     - アップロードしたデータを編集できるように変更(2025/04/25)
     - 数式のフォントを変更(2024/12/26)
     - 関数の入力方法を変更(2024/11/30)
@@ -712,6 +743,9 @@ with tab3:
         - ベクター形式のpdf、svgで保存すると拡大しても粗くならないが、プロットする点が極端に多い場合保存した画像の読み込みなどが重くなることがあるので注意
     6. 画像を保存する
         - 設定を変更して完成したら「画像を保存」ボタンを押して画像をダウンロードできる
+    7. 設定の保存と読み込み
+        - グラフを作成して設定を変更した後に「グラフの設定を保存」ボタンを押すとサイドバーでの設定内容がtomlファイルに出力される
+        - 新しくグラフを作成する際にプロット用のデータを読み込んで設定ファイルを読み込むと設定を再現できる
     '''
     st.subheader("高度な設定")
     '''
