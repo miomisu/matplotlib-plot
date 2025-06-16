@@ -327,7 +327,7 @@ with st.sidebar:
             st.error("正しいファイルを選択できているか確認してください", icon="🚨")
         st.header("プロットするデータ系列")
         number_of_data = st.number_input("プロットするデータ系列の数", min_value=0, step=1, value=len(a.property))
-        a.property += [[ 0, 1, "o", 4, 3, "black", "", 1,] for i in range(number_of_data - 1)]
+        a.property += [[ 0, 1, "o", 4, 3, "black", "", "marker", 1.0, 1.0,] for i in range(number_of_data - 1)]
         property_ = [[] for i in range(number_of_data)]
         # プロットするデータ系列の数だけ設定を用意
         for y in range(number_of_data):
@@ -343,13 +343,13 @@ with st.sidebar:
             with col1:
                 st.markdown("Xの値を")
             with col2:
-                x_magnification = st.number_input("a", label_visibility="collapsed", value=1.0, key=y + 0.011)
+                x_magnification = st.number_input("a", label_visibility="collapsed", value=a.property[y][8], key=y + 0.011)
             with col3:
                 st.markdown("倍する")
             with col4:
                 st.markdown("Yの値を")
             with col5:
-                y_magnification = st.number_input("a", label_visibility="collapsed", value=1.0, key=y + 0.012)
+                y_magnification = st.number_input("a", label_visibility="collapsed", value=a.property[y][9], key=y + 0.012)
             with col6:
                 st.markdown("倍する")
             if xa == ya:
