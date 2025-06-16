@@ -127,6 +127,8 @@ class plot_main:
                     plt.scatter(self.column[o[0]], self.column[o[1]], marker=o[2][0], s=o[3], c=o[5], label=o[6])
             else:
                 plt.plot(self.column[o[0]], self.column[o[1]], o[2], markersize=o[3], linewidth=o[4], c=o[5], label=o[6])
+            self.column[o[0]] = [x / o[8] for x in self.column[o[0]]]
+            self.column[o[1]] = [x / o[9] for x in self.column[o[1]]]
 
     # 凡例表示
     def display_legend(self):
