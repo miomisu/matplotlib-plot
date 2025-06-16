@@ -42,7 +42,7 @@ class plot_main:
     righttick: bool = False
     xtickdir: str = "内側"
     ytickdir: str = "内側"
-    property: list = field(default_factory=lambda: [[ 0, 1, "o", 4, 3, "black", "", 1,]])
+    property: list = field(default_factory=lambda: [[ 0, 1, "o", 4, 3, "black", "", "marker", 1.0, 1.0,]])
     legends: bool = False
     minorticks: bool = True
     grid: bool = True
@@ -117,9 +117,11 @@ class plot_main:
     # プロット用関数
     def valueplot2(self):
         for o in self.property:
+            self.column[o[0]] = [x * o[8] for x in self.column[o[0]]]
+            self.column[o[1]] = [x * o[9] for x in self.column[o[1]]]
             if any(np.isnan(self.column[o[1]])) or any(np.isnan(self.column[o[0]])):
                 if self.comparison_element(self.column[o[0]], self.column[o[1]]):
-                    plt.plot(a.removeNaN(self.column[o[0]]), a.removeNaN(self.column[o[1]]), o[2], markersize=o[3], linewidth=o[4], c=o[5], label=o[6])
+                    plt.plot(self.removeNaN(self.column[o[0]]), self.removeNaN(self.column[o[1]]), o[2], markersize=o[3], linewidth=o[4], c=o[5], label=o[6])
                 else:
                     st.write("**データ系列" + str(o[-1]) + "に欠損値があるため折れ線を表示できません。**")
                     plt.scatter(self.column[o[0]], self.column[o[1]], marker=o[2][0], s=o[3], c=o[5], label=o[6])
@@ -284,7 +286,7 @@ with st.sidebar:
         a.xlabel = st.text_input("X軸のラベル", value=a.xlabel)
     with col2:
         a.ylabel = st.text_input("Y軸のラベル", value=a.ylabel)
-    st.caption("$で囲むことでTeX記法の数式を使用可能")
+    st.caption("\$で囲むことで$\LaTeX$記法の数式を使用可能")
     col1, col2 = st.columns(2)
     with col1:
         a.xlog = st.checkbox("X軸を対数軸にする", value=a.xlog)
@@ -337,6 +339,19 @@ with st.sidebar:
             with col2:
                 ya = st.selectbox("Yとする列", columns, index=a.property[y][1], key=y + 0.02)
                 property_[y].append(ya)
+            col1, col2, col3, col4, col5, col6 = st.columns(6)
+            with col1:
+                st.markdown("Xの値を")
+            with col2:
+                x_magnification = st.number_input("a", label_visibility="collapsed", value=1.0, key=y + 0.011)
+            with col3:
+                st.markdown("倍する")
+            with col4:
+                st.markdown("Yの値を")
+            with col5:
+                y_magnification = st.number_input("a", label_visibility="collapsed", value=1.0, key=y + 0.012)
+            with col6:
+                st.markdown("倍する")
             if xa == ya:
                 st.error("X軸とY軸で同じ列を選択しています", icon="🚨")
             if a.property[y][7] == "marker+line":
@@ -372,6 +387,8 @@ with st.sidebar:
                 property_[y].append("line")
             elif plottype == "両方":
                 property_[y].append("marker+line")
+            property_[y].append(x_magnification)
+            property_[y].append(y_magnification)
             property_[y].append(y + 1)
             '''
             ---
@@ -447,6 +464,7 @@ with tab1:
         )
     '''
     **更新履歴**
+    - X、Yの値を定数倍する機能を追加(2025/06/16)
     - グラフの設定のエクスポート・インポート機能を追加(2025/06/04)
     - アップロードしたデータを編集できるように変更(2025/04/25)
     - 数式のフォントを変更(2024/12/26)
