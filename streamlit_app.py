@@ -201,14 +201,14 @@ with st.sidebar:
     st.header("基本設定")
     # ファイル読み込み
     sh = st.number_input("無視する先頭からの行数", min_value=0, value="min", step=1)
-    ft = st.radio("ファイルの種類", ["CSV(カンマ区切り)", "TSV(タブ区切り)"], horizontal=True)
+    ft = st.radio("ファイルの種類", ["CSVまたはVCSV(カンマ区切り)", "TSV(タブ区切り)"], horizontal=True)
     if ft == "CSVまたはVCSV(カンマ区切り)":
         dlmt = ","
     else:
         dlmt = "\t"
     # ファイル読み込み
     st.subheader("ファイルを選択")
-    uploaded_file = st.file_uploader("数値だけが入力されたCSV、TSV、TXTファイルを選択", type=["csv", "vcsv", "tsv", "txt"])
+    uploaded_file = st.file_uploader("CSV、VCSV、TSV、TXTファイルを選択", type=["csv", "vcsv", "tsv", "txt"])
     if uploaded_file:
         data_set = get_data(uploaded_file, dlmt, sh)
         with st.expander("データを見る"):
