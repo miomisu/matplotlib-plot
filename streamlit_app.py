@@ -9,6 +9,8 @@ from dataclasses import dataclass, field
 import toml
 import tomllib
 import datetime
+import pandas as pd
+import csv
 
 st.set_page_config(
     page_title="matplotlib GUI",
@@ -21,16 +23,13 @@ tab1, tab2, tab3, tab4 = st.tabs(["基本のプロット", "高度な設定", "�
 
 # ファイル読み込み用関数
 @st.cache_data
-def get_data(file, dlmt, sh):# -> np.ndarray:
-    data_set = np.genfromtxt(
-        fname=file,
-        dtype="float",
-        delimiter=dlmt,
-        skip_header=sh,
-    )
-    return data_set
+def get_df(file) -> pd.DataFrame:
+    sample = file.read(65536).decode('utf-8')
+    file.seek(0)
+    dialect = csv.Sniffer().sniff(sample, delimiters=",\t")
+    return pd.read_csv(file, delimiter=dialect.delimiter, header=None)
 
-# クラス作成
+# MARK: クラス作成
 @dataclass
 class plot_main:
     dpi: int = 300
@@ -59,7 +58,7 @@ class plot_main:
     xlabel: str = "X"
     ylabel: str = "Y"
     fp: type = FontProperties
-    column: list = field(default_factory=list)
+    column: pd.DataFrame = field(default_factory=pd.DataFrame)
     xtick_list_num: list = field(default_factory=list)
     xtick_list: list = field(default_factory=list)
     ytick_list_num: list = field(default_factory=list)
@@ -78,12 +77,12 @@ class plot_main:
     xtick_distance: int = 5
     ytick_distance: int = 5
     
-    # figure作成
+    # MARK: figure作成
     def makefig(self):
         fig = plt.figure(dpi=self.dpi, figsize=(self.width, self.height))
         return fig
     
-    # 目盛り全般設定
+    # MARK: 目盛り全般設定
     def xtick_settings(self):
         if self.xscale:
             plt.xticks(self.xtick_list_num, self.xtick_list)
@@ -114,74 +113,66 @@ class plot_main:
             plt.tick_params(axis='y', which='minor', direction='inout', length=self.yminor_size, width=self.yminor_width, bottom=self.bottomtick, top=self.toptick, left=self.lefttick, right=self.righttick)
             plt.tick_params(axis="y", which="major", direction='inout', length=self.ymajor_size, width=self.ymajor_width, bottom=self.bottomtick, top=self.toptick, left=self.lefttick, right=self.righttick, pad=self.ytick_distance, labelfontfamily=self.fontfamily, labelsize=self.fontsize[1])
 
-    # プロット用関数
+    # MARK: プロット用関数
     def valueplot2(self):
         for o in self.property:
-            self.column[o[0]] = [x * o[8] for x in self.column[o[0]]]
-            self.column[o[1]] = [x * o[9] for x in self.column[o[1]]]
-            if any(np.isnan(self.column[o[1]])) or any(np.isnan(self.column[o[0]])):
-                if self.comparison_element(self.column[o[0]], self.column[o[1]]):
-                    plt.plot(self.removeNaN(self.column[o[0]]), self.removeNaN(self.column[o[1]]), o[2], markersize=o[3], linewidth=o[4], c=o[5], label=o[6])
-                else:
-                    st.write("**データ系列" + str(o[-1]) + "に欠損値があるため折れ線を表示できません。**")
-                    plt.scatter(self.column[o[0]], self.column[o[1]], marker=o[2][0], s=o[3], c=o[5], label=o[6])
-            else:
-                plt.plot(self.column[o[0]], self.column[o[1]], o[2], markersize=o[3], linewidth=o[4], c=o[5], label=o[6])
-            self.column[o[0]] = [x / o[8] for x in self.column[o[0]]]
-            self.column[o[1]] = [x / o[9] for x in self.column[o[1]]]
+            temp_column = self.column[[o[0], o[1]]].dropna(subset=[o[0], o[1]]).sort_values(by=o[0])
+            temp_column.loc[:, o[0]] *= o[8]
+            temp_column.loc[:, o[1]] *= o[9]
+            plt.plot(temp_column[o[0]], temp_column[o[1]], o[2], markersize=o[3], linewidth=o[4], c=o[5], label=o[6])
 
-    # 凡例表示
+    # MARK: 凡例表示
     def display_legend(self):
         if self.legends:
             plt.legend(fontsize = self.fontsize[2], prop={"family":self.fontfamily, "size":self.fontsize[2]})
     
-    # 補助目盛り追加
+    # MARK: 補助目盛り追加
     def add_minorticks(self):
         if self.minorticks:
             plt.minorticks_on()
     
-    # グリッド表示
+    # MARK: グリッド表示
     def display_grid(self):
         if self.grid:
             plt.grid()
 
-    # x軸対数指定
+    # MARK: x軸対数指定
     def enable_xlog(self):
         if self.xlog:
             plt.xscale("log")
-    # y軸対数指定
+    # MARK: y軸対数指定
     def enable_ylog(self):
         if self.ylog:
             plt.yscale("log")
     
-    # x軸範囲
+    # MARK: x軸範囲
     def xrange(self):
         if self.xmin != None and self.xmax != None:
             plt.xlim(self.xmin, self.xmax)
-    # y軸範囲
+    # MARK: y軸範囲
     def yrange(self):
         if self.ymin != None and self.ymax != None:
             plt.ylim(self.ymin, self.ymax)
     
-    # X軸ラベル
+    # MARK: X軸ラベル
     def add_xlabel(self):
         plt.xlabel(self.xlabel, fontfamily = self.fontfamily, fontsize = self.fontsize[0])
-    # Y軸ラベル
+    # MARK: Y軸ラベル
     def add_ylabel(self):
         plt.ylabel(self.ylabel, fontfamily = self.fontfamily, fontsize = self.fontsize[0])
 
-    # NaNの除去
+    # MARK: NaNの除去
     def removeNaN(self, list):
         return [i for i in list if not np.isnan(i)]
     
-    # NaNを除去したリストの要素数の比較
+    # MARK: NaNを除去したリストの要素数の比較
     def comparison_element(self, list1, list2):
         if len(self.removeNaN(list1)) == len(self.removeNaN(list2)):
             return True
         else:
             return False
 
-# 辞書のvalueから辞書内での順番を取得
+# MARK: 辞書のvalueから辞書内での順番を取得
 def value_to_index(value: str, dict: dict) -> int:
     try:
         return list(dict.keys()).index([k for k, v in dict.items() if v == value][0])
@@ -192,39 +183,40 @@ def select_plottype(value: str, dict1: dict, dict2: dict, plottype: str) -> list
         return [value_to_index(value[0], dict1), value_to_index(value[1:], dict2)]
     else:
         return [value_to_index(value, dict1), value_to_index(value, dict2)]
-# マーカーのオプション
+# MARK: マーカーのオプション
 colors = ["white", "black", "gray", "lightgrey", "red", "coral", "orangered", "sandybrown", "darkorange", "orange", "gold", "yellow", "lawngreen", "green", "darkgreen", "lime", "aqua", "dodgerblue", "royalblue", "darkblue", "violet", "purple", "magenta", "hotpink"]
 markers_dict = {"●": "o", "■": "s", "▼": "v", "▲": "^","◆": "D", "✚": "+", "✖": "x"}
 linetype_dict = {"実線":"-", "破線":"--", "点線":":", "一点鎖線":"-."}
 
-# オブジェクト作成
+# MARK: オブジェクト作成
 a = plot_main()
 with st.sidebar:
     st.header("基本設定")
-    # ファイル読み込み
-    sh = st.number_input("無視する先頭からの行数", min_value=0, value="min", step=1)
-    ft = st.radio("ファイルの種類", ["CSVまたはVCSV(カンマ区切り)", "TSV(タブ区切り)"], horizontal=True)
-    if ft == "CSVまたはVCSV(カンマ区切り)":
-        dlmt = ","
-    else:
-        dlmt = "\t"
-    # ファイル読み込み
     st.subheader("ファイルを選択")
-    uploaded_file = st.file_uploader("CSV、VCSV、TSV、TXTファイルを選択", type=["csv", "vcsv", "tsv", "txt"])
+    uploaded_file = st.file_uploader("CSV、VCSV、TSV、TXTファイルを選択", type=["csv", "vcsv", "tsv", "txt"], help="プロットしたい数値データが入っているファイルをアップロードしてください。ファイルの種類は自動判別されます。ファイルサイズの上限は200MBです。")
     if uploaded_file:
-        data_set = get_data(uploaded_file, dlmt, sh)
-        with st.expander("データを見る"):
-            data_set = st.data_editor(data_set, num_rows="dynamic")
-    # 設定ファイル読み込み
+        try:
+            df = get_df(uploaded_file)
+        except Exception as e:
+            st.error(f"読み込みに失敗しました: {e}", icon="🚨")
+        with st.expander("データを編集"):
+            # data_set = st.data_editor(data_set, num_rows="dynamic")
+            initial_col_count = len(df.columns)
+            new_columns_num = st.number_input("追加する列数", min_value=0, max_value=100, value=0, key=-810)
+            for i in range(new_columns_num):
+                df[str(initial_col_count+i)] = None
+            df = st.data_editor(df)
+            a.column = df.apply(pd.to_numeric, errors="coerce")
+    # MARK: 設定ファイル読み込み
     st.subheader("設定ファイル読み込み(オプション)")
-    setting_file = st.file_uploader("設定ファイルを選択", type=["toml"])
+    setting_file = st.file_uploader("設定ファイルを選択", type=["toml"], help="このアプリで作成したグラフの設定ファイルがある場合はアップロードしてください。")
     if setting_file:
         try:
             settings = tomllib.load(setting_file)
             a.__dict__.update(settings)
         except:
             st.error("正しいファイルを選択できているか確認してください", icon="🚨")
-    # グラフの設定
+    # MARK: グラフの設定
     st.subheader("グラフの設定")
     col1, col2 = st.columns(2)
     with col1:
@@ -288,7 +280,7 @@ with st.sidebar:
         a.xlabel = st.text_input("X軸のラベル", value=a.xlabel)
     with col2:
         a.ylabel = st.text_input("Y軸のラベル", value=a.ylabel)
-    st.caption("\$で囲むことで$\LaTeX$記法の数式を使用可能")
+    st.caption("\$で囲むことで$\LaTeX$記法の数式を使用可能です")
     col1, col2 = st.columns(2)
     with col1:
         a.xlog = st.checkbox("X軸を対数軸にする", value=a.xlog)
@@ -296,7 +288,7 @@ with st.sidebar:
     with col2:
         a.ylog = st.checkbox("Y軸を対数軸にする", value=a.ylog)
         a.grid = st.checkbox("グリッド", value=a.grid)
-    # フォント指定
+    # MARK: フォント指定
     col1, col2, col3 = st.columns(3)
     fm.fontManager.addfont(r"HaranoAjiGothic-Regular.otf")
     fm.fontManager.addfont(r"HaranoAjiMincho-Regular.otf")
@@ -315,18 +307,6 @@ with st.sidebar:
         plt.rcParams["mathtext.fontset"] = "stixsans"
     yaxis = []
     if uploaded_file:
-        #data_set = get_data(uploaded_file)
-        # st.write(uploaded_file.name)
-        columns = []
-        # 行列入れ替え
-        try:
-            a.column = [[] for i in range(len(data_set[0]))]
-            for i in range(len(data_set[0])):
-                columns.append(i)
-                for j in range(len(data_set)):
-                    a.column[i].append(data_set[j][i])
-        except:
-            st.error("正しいファイルを選択できているか確認してください", icon="🚨")
         st.header("プロットするデータ系列")
         number_of_data = st.number_input("プロットするデータ系列の数", min_value=0, step=1, value=len(a.property))
         a.property += [[ 0, 1, "o", 4, 3, "black", "", "marker", 1.0, 1.0,] for i in range(number_of_data - 1)]
@@ -336,10 +316,10 @@ with st.sidebar:
             st.write("**データ系列" + str(y + 1) + "**")
             col1, col2 = st.columns(2)
             with col1:
-                xa = st.selectbox("Xとする列", columns, index=a.property[y][0], key=y + 0.01)
+                xa = st.selectbox("Xとする列", df.columns.tolist(), index=a.property[y][0], key=y + 0.01)
                 property_[y].append(xa)
             with col2:
-                ya = st.selectbox("Yとする列", columns, index=a.property[y][1], key=y + 0.02)
+                ya = st.selectbox("Yとする列", df.columns.tolist(), index=a.property[y][1], key=y + 0.02)
                 property_[y].append(ya)
             col1, col2, col3, col4, col5, col6 = st.columns(6)
             with col1:
@@ -362,7 +342,7 @@ with st.sidebar:
                 plottype_index = 1
             else:
                 plottype_index = 0
-            plottype = st.radio("プロットの種類", ["マーカー", "折れ線", "両方"], horizontal=True, key=y + 0.05, disabled=(any(np.isnan(a.column[ya])) or any(np.isnan(a.column[xa]))) and not a.comparison_element(a.column[xa], a.column[ya]), index=plottype_index)
+            plottype = st.radio("プロットの種類", ["マーカー", "折れ線", "両方"], horizontal=True, key=y + 0.05, index=plottype_index)
             col1, col2, col3= st.columns(3)
             with col1:
                 marker = st.selectbox("マーカーの形", (markers_dict.keys()), key=y + 0.03, index=select_plottype(a.property[y][2], markers_dict, linetype_dict, a.property[y][7])[0])
@@ -446,7 +426,9 @@ with tab1:
                 data = file,
                 file_name = a.title + a.expantion,
                 )
-    # 設定保存
+    else:
+        st.markdown("データをアップロードするとグラフが表示されます")
+    # MARK: 設定保存
     filtered_settings = {
         key: value
         for key, value in vars(a).items()
@@ -462,10 +444,12 @@ with tab1:
         btn=st.download_button(
             label="グラフの設定を保存",
             data=f,
-            file_name=f"graph_settings_{date_str_hyphen}.toml"
+            file_name=f"graph_settings_{date_str_hyphen}.toml",
+            help="現在のグラフの設定を再現できるようにグラフのプロパティが記録された設定ファイルをダウンロードします。"
         )
     '''
     **更新履歴**
+    - ファイルの種類を自動判別するように変更(2025/06/21)
     - X、Yの値を定数倍する機能を追加(2025/06/16)
     - グラフの設定のエクスポート・インポート機能を追加(2025/06/04)
     - アップロードしたデータを編集できるように変更(2025/04/25)
@@ -537,57 +521,65 @@ with tab2:
             approxdata =  st.multiselect("近似するデータ系列を選択", yaxis, default=None)
             approxproperty = [[] for i in range(len(approxdata))]
             for i, o in enumerate(approxdata):
-                if not a.comparison_element((a.column[a.property[o-1][1]]), a.column[a.property[o-1][0]]):
-                    st.write("データ系列" + str(o) + "に欠損値があるため近似直線/曲線を表示できません。")
-                    approxproperty[i].append(False)
-                else:
-                    st.write("データ系列" + str(o))
-                    col1, col2, col3, col4 = st.columns(4)
-                    with col1:
-                        approx_dim = st.number_input("次数を入力", min_value=1, step=1, value=1, key=-1 * o -0.4)
-                        approxproperty[i].append(approx_dim)
-                    coefficient = np.polyfit(a.removeNaN(a.column[a.property[o-1][0]]), a.removeNaN(a.column[a.property[o-1][1]]), approx_dim)
-                    approxproperty[i].append(coefficient)
-                    # 数式表示
-                    coefficient_str = []
-                    for q, j in enumerate(coefficient):
-                        if j > 0 and q == len(coefficient) - 1:
-                            coefficient_str.append("+" + str(round(j, 3)))
-                        elif j <= 0 and q == len(coefficient) - 1:
-                            coefficient_str.append("-" + str(round(j, 3)))
-                        elif j > 0 and q == len(coefficient) - 2:
-                            coefficient_str.append("+" + str(round(j, 3)) + "x")
-                        elif j <= 0 and q == len(coefficient) - 2:
-                            coefficient_str.append("-" + str(round(-1 * j, 3)) + "x")
-                        elif j >= 0 and q == 0:
-                            coefficient_str.append(str(round(j, 3)) + "x^" + str(len(coefficient) - 1))
-                        elif j >= 0:
-                            coefficient_str.append("+" + str(round(j, 3)) + "x^" + str(len(coefficient) - q - 1))
-                        elif j < 0:
-                            coefficient_str.append("-" + str(round(-1 * j, 3)) + "x^" + str(len(coefficient)- q - 1))
-                    formula = "$"
-                    for p in range(len(coefficient)):
-                        formula += coefficient_str[p]
-                    formula += "$"
-                    st.write("近似式: " + formula)
+                # MARK: NaNの項目を除去
+                temp_column = a.column[[a.property[o-1][0], a.property[o-1][1]]].dropna(subset=[a.property[o-1][0], a.property[o-1][1]]).sort_values(by=a.property[o-1][0])
+                temp_column.loc[:, str(a.property[o-1][0])] *= a.property[o-1][8]
+                temp_column.loc[:, str(a.property[o-1][1])] *= a.property[o-1][9]
+                st.write("データ系列" + str(o))
+                col1, col2, col3, col4 = st.columns(4)
+                with col1:
+                    approx_dim = st.number_input("次数を入力", min_value=1, step=1, value=1, key=-1 * o -0.4)
+                    approxproperty[i].append(approx_dim)
+                coefficient = np.polyfit(temp_column[str(a.property[o-1][0])], temp_column[str(a.property[o-1][1])], approx_dim)
+                approxproperty[i].append(coefficient)
+                # 数式表示
+                coefficient_str = []
+                for q, j in enumerate(coefficient):
+                    if j > 0 and q == len(coefficient) - 1:
+                        coefficient_str.append("+" + str(round(j, 3)))
+                    elif j <= 0 and q == len(coefficient) - 1:
+                        coefficient_str.append("-" + str(round(j, 3)))
+                    elif j > 0 and q == len(coefficient) - 2:
+                        coefficient_str.append("+" + str(round(j, 3)) + "x")
+                    elif j <= 0 and q == len(coefficient) - 2:
+                        coefficient_str.append("-" + str(round(-1 * j, 3)) + "x")
+                    elif j >= 0 and q == 0:
+                        coefficient_str.append(str(round(j, 3)) + "x^" + str(len(coefficient) - 1))
+                    elif j >= 0:
+                        coefficient_str.append("+" + str(round(j, 3)) + "x^" + str(len(coefficient) - q - 1))
+                    elif j < 0:
+                        coefficient_str.append("-" + str(round(-1 * j, 3)) + "x^" + str(len(coefficient)- q - 1))
+                formula = "$"
+                for p in range(len(coefficient)):
+                    formula += coefficient_str[p]
+                formula += "$"
+                st.write("近似式: " + formula)
 
-                    approx_x = np.linspace(a.removeNaN(a.column[a.property[o-1][0]])[0], a.removeNaN(a.column[a.property[o-1][0]])[-1], 100)
-                    approxproperty[i].append(approx_x)
-                    approxproperty[i].append(np.polyval(coefficient, approx_x))
+                st.write("表示する範囲")
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    min = st.number_input("最小値", value=temp_column[str(a.property[o-1][0])].min(), step=0.01, key=i + 10.1)
+                with col2:
+                    max = st.number_input("最大値", value=temp_column[str(a.property[o-1][0])].max(), step=0.01, key=i + 10.01)
+                with col3:
+                    slice = st.number_input("分割数(滑らかさ)", value=100, min_value=0, step=1, key=i + 10.001)
+                approx_x = np.linspace(min, max, slice)
+                approxproperty[i].append(approx_x)
+                approxproperty[i].append(np.polyval(coefficient, approx_x))
 
-                    col1, col2, col3, col4 = st.columns(4)
-                    with col1:
-                        approx_linetype = st.selectbox("線の種類", (linetype_dict.keys()), key=-1 * o)
-                        approxproperty[i].append(approx_linetype)
-                    with col2:
-                        approx_color = st.selectbox("色", (colors), index=1, key=-1 * o - 0.1)
-                        approxproperty[i].append(approx_color)
-                    with col3:
-                        approx_width = st.number_input("線の幅", value=3.0, min_value=0.0, step=0.5, key=-1 * o - 0.2)
-                        approxproperty[i].append(approx_width)
-                    with col4:
-                        approx_legend = st.text_input("凡例名", key=-1 * o - 0.3)
-                        approxproperty[i].append(approx_legend)
+                col1, col2, col3, col4 = st.columns(4)
+                with col1:
+                    approx_linetype = st.selectbox("線の種類", (linetype_dict.keys()), key=-1 * o)
+                    approxproperty[i].append(approx_linetype)
+                with col2:
+                    approx_color = st.selectbox("色", (colors), index=1, key=-1 * o - 0.1)
+                    approxproperty[i].append(approx_color)
+                with col3:
+                    approx_width = st.number_input("線の幅", value=3.0, min_value=0.0, step=0.5, key=-1 * o - 0.2)
+                    approxproperty[i].append(approx_width)
+                with col4:
+                    approx_legend = st.text_input("凡例名", key=-1 * o - 0.3)
+                    approxproperty[i].append(approx_legend)
 
 
         with st.expander("フォントを指定する(軸ラベルのみ)"):
