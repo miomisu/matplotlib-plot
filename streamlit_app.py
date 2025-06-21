@@ -316,10 +316,10 @@ with st.sidebar:
             st.write("**データ系列" + str(y + 1) + "**")
             col1, col2 = st.columns(2)
             with col1:
-                xa = st.selectbox("Xとする列", df.columns.tolist(), index=a.property[y][0], key=y + 0.01)
+                xa = st.selectbox("Xとする列", a.column.columns.tolist(), index=int(a.property[y][0]), key=y + 0.01)
                 property_[y].append(xa)
             with col2:
-                ya = st.selectbox("Yとする列", df.columns.tolist(), index=a.property[y][1], key=y + 0.02)
+                ya = st.selectbox("Yとする列", a.column.columns.tolist(), index=int(a.property[y][1]), key=y + 0.02)
                 property_[y].append(ya)
             col1, col2, col3, col4, col5, col6 = st.columns(6)
             with col1:
