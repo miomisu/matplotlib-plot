@@ -14,8 +14,36 @@ import csv
 
 st.set_page_config(
     page_title="matplotlib GUI",
-    page_icon="📈"
+    page_icon="📈",
+    initial_sidebar_state="expanded"
 )
+
+st.markdown("""
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+[class^="st-emotion-cache-"] h1,
+[class^="st-emotion-cache-"] h2,
+[class^="st-emotion-cache-"] h3,
+[class^="st-emotion-cache-"] h4,
+[class^="st-emotion-cache-"] h5,
+[class^="st-emotion-cache-"] h6 {
+    font-family: 'IBM Plex Sans JP', sans-serif !important;
+    font-weight: 500 !important;
+    font-style: normal;
+}
+[class^="st-emotion-cache-"] h1 {
+    font-family: 'IBM Plex Sans JP', sans-serif !important;
+    font-weight: 600 !important;
+    font-style: normal;
+}
+body, li, p {
+	font-family: 'IBM Plex Sans JP', sans-serif !important;
+    font-weight: 400 !important;
+    font-style: normal;
+}
+
+</style>
+""", unsafe_allow_html=True)
 
 st.title("matplotlibで散布図を作成")
 
