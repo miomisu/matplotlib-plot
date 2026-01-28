@@ -21,7 +21,6 @@ st.set_page_config(
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-[class^="st-emotion-cache-"] h1,
 [class^="st-emotion-cache-"] h2,
 [class^="st-emotion-cache-"] h3,
 [class^="st-emotion-cache-"] h4,
@@ -72,7 +71,7 @@ class plot_main:
     property: list = field(default_factory=lambda: [[ 0, 1, "o", 4, 3, "black", "", "marker", 1.0, 1.0,]])
     legends: bool = False
     minorticks: bool = True
-    grid: bool = True
+    grid: bool = False
     xlog: bool = False
     ylog: bool = False
     xmin: float = None
@@ -308,7 +307,7 @@ with st.sidebar:
         a.xlabel = st.text_input("X軸のラベル", value=a.xlabel)
     with col2:
         a.ylabel = st.text_input("Y軸のラベル", value=a.ylabel)
-    st.caption("\$で囲むことで$\LaTeX$記法の数式を使用可能です")
+    st.caption("\\$で囲むことで$\\LaTeX$記法の数式を使用可能です")
     col1, col2 = st.columns(2)
     with col1:
         a.xlog = st.checkbox("X軸を対数軸にする", value=a.xlog)
@@ -612,10 +611,10 @@ with tab2:
 
         with st.expander("フォントを指定する(軸ラベルのみ)"):
             setfont = st.checkbox(":orange-background[有効化]", value=False, disabled=True, key="font")
-            fontpath = st.text_input("フォントファイルのパスを指定", placeholder="例) C:\Windows\Fonts\HGRPP1.ttc")
+            fontpath = st.text_input("フォントファイルのパスを指定", placeholder=r"例) C:\Windows\Fonts\HGRPP1.ttc")
             if fontpath:
                 fp = FontProperties(fname=fontpath, size=a.fontsize[0])
-            st.caption("システムフォントの場所 C:\\Windows\\Fonts ユーザーフォントの場所 C:\\Users\\ユーザー名\\AppData\\Local\\Microsoft\\Windows\\Fonts")
+            st.caption(r"システムフォントの場所 C:\Windows\Fonts ユーザーフォントの場所 C:\Users\ユーザー名\AppData\Local\Microsoft\Windows\Fonts")
         
         with st.expander("目盛り線の設定"):
             a.ticksetting = st.checkbox(":orange-background[有効化]", value=False, key="ticksetting")
