@@ -427,7 +427,7 @@ with tab1:
         # プロット
         fig = a.makefig()
         plt.rcParams["grid.linewidth"] = 0.8
-        plt.rcParams["axes.linewidth"] = 0.8
+        plt.rcParams["axes.linewidth"] = 1.0
         plt.rcParams["grid.color"] = "#b0b0b0"
         plt.rcParams['axes.axisbelow'] = True
         a.xtick_settings()
@@ -507,9 +507,9 @@ with tab2:
             if uploaded_file:
                 col1, col2, col3 = st.columns(3)
                 with col1:
-                    f_min = st.number_input("最小値", value=np.min(a.removeNaN(a.column[a.property[0][0]])), step=0.01)
+                    f_min = st.number_input("最小値", value=float(np.min(a.removeNaN(a.column[a.property[0][0]]))), step=0.01)
                 with col2:
-                    f_max = st.number_input("最大値", value=np.max(a.removeNaN(a.column[a.property[0][0]])), step=0.01)
+                    f_max = st.number_input("最大値", value=float(np.max(a.removeNaN(a.column[a.property[0][0]]))), step=0.01)
                 with col3:
                     slice = st.number_input("分割数(滑らかさ)", value=100, min_value=0, step=1)
 
@@ -585,9 +585,9 @@ with tab2:
                 st.write("表示する範囲")
                 col1, col2, col3 = st.columns(3)
                 with col1:
-                    min = st.number_input("最小値", value=temp_column[str(a.property[o-1][0])].min(), step=0.01, key=i + 10.1)
+                    min = st.number_input("最小値", value=float(temp_column[str(a.property[o-1][0])].min()), step=0.01, key=i + 10.1)
                 with col2:
-                    max = st.number_input("最大値", value=temp_column[str(a.property[o-1][0])].max(), step=0.01, key=i + 10.01)
+                    max = st.number_input("最大値", value=float(temp_column[str(a.property[o-1][0])].max()), step=0.01, key=i + 10.01)
                 with col3:
                     slice = st.number_input("分割数(滑らかさ)", value=100, min_value=0, step=1, key=i + 10.001)
                 approx_x = np.linspace(min, max, slice)
